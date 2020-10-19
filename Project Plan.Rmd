@@ -1,7 +1,7 @@
 ---
 title: "Project Plan"
 author: "Kingsley David Onyewuchi Ofoegbu, Jazelle Pilao, Doudou Shi, and Evan Steinberg"
-date: "`r Sys.Date()`" 
+date: "Due 2020-10-07" 
 output: html_document
 ---
 
@@ -18,13 +18,13 @@ Kingsley David Onyewuchi Ofoegbu, Jazelle Pilao, Doudou Shi, and Evan Steinberg.
 
 # Description of the problem to be analyzed in the Shiny App
 
-In this project, we are creating a Shiny app that explores coronavirus in the United States. Specifically, we are interested in creating an app that allows users to explore causes of coronavirus cases in the United States. Furthermore, we are interested in creating an app that can determine if there are any difference between identity groups in the United States when it comes to coronavirus. To explore this idea, we are looking at comparing  states, age groups, and pre-existing medical conditions. In addition, we are also interested in giving the user the option of comparing those groups by the total number of cases, number of positive/negative test results, number of active cases, and total deaths. Therefore, the user will have the ability to select the group that they are interested in exploring, as well as what will be compared.
+In this project, we are creating a Shiny app that explores coronavirus in the United States. Specifically, we are interested in creating an app that allows users to explore causes of coronavirus cases in the United States. Furthermore, we are interested in creating an app that can determine if there are any difference between identity groups in the United States when it comes to coronavirus. To explore this idea, we are looking at comparing  states, age groups, and pre-existing medical conditions. In addition, we are also interested in giving the user the option of comparing those groups by the total number of cases, number of positive/negative test results, number of active cases, and total deaths. Therefore, the user will have the ability to select the group that they are interested in exploring, as well as what will be compared. These comparisons will be done both visually and via statistical analysis.
 
 # Proposed Data Sources
 
 Our first proposed source is from The COVID Tracking Project found [here](https://covidtracking.com/data/download). This source provides information about the pandemic from January until the day before downloading. This ensures that the date is up to date at all times. This source gives data on confirmed deaths, confirmed hospitalizations, number of people on ventilators in that state, number of positive/negative COVID tests, etc. 
 
-Our second proposed source is from HealthData.gov and can be found [here](https://healthdata.gov/dataset/conditions-contributing-deaths-involving-coronavirus-disease-2019-covid-19-age-group-and). This source gives us information on coronavirus broken down by state. However, this also gives us information by age group, state, and any pre-existing conditions.
+Our second proposed source is from HealthData.gov and can be found [here](https://healthdata.gov/dataset/conditions-contributing-deaths-involving-coronavirus-disease-2019-covid-19-age-group-and). This contains data from February to October. This source gives us information on coronavirus broken down by state. However, this also gives us information by age group, state, and any pre-existing conditions.
 
 # Concept for Shiny App
 ## Overall layout
