@@ -18,4 +18,5 @@ ctracking <- ctracking %>%
   select(Month, everything()) %>%
   select(-date) %>%
   group_by(Month, state) %>%
-  summarise_all(sum)
+  summarise_all(sum) %>%
+  arrange(Month, state)
