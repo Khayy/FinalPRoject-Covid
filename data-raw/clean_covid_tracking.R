@@ -18,5 +18,10 @@ ctracking <- ctracking %>%
   select(Month, everything()) %>%
   select(-date) %>%
   group_by(Month, state) %>%
-  summarise_all(sum) %>%
+  summarise_all(sum, na.rm = TRUE) %>%
   arrange(Month, state)
+
+
+
+# Export to rds file
+write_rds(ctracking, file = "../data/ctracking.rds")
