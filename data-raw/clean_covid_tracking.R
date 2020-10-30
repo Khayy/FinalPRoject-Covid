@@ -24,4 +24,4 @@ ctracking <- ctracking %>%
 
 
 # Export to rds file
-write_rds(ctracking, file = "../data/ctracking.rds")
+write_rds(ctracking, path = "./data/ctracking.rds")
