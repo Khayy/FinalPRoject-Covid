@@ -42,7 +42,9 @@ bplot <- bplot %>%
                       `7` = "Jul",
                       `8` = "Aug",
                       `9` = "Sept",
-                      `10` = "Oct"))
+                      `10` = "Oct"),
+           Condition = recode(Condition,
+                             `Intentional and unintentional injury, poisoning, and other adverse events` = "Other adverse events"))
 
 ui <- fluidPage(
   
@@ -65,9 +67,12 @@ ui <- fluidPage(
         column(4)
     ), # end fluidRow
     fluidRow(title = "Outputs",
-        column(12,
-            plotOutput("boxplot", height = 700)
-        ) # end mainPanel
+        column(6,
+            plotOutput("boxplot", height = 500)
+        ), # end column
+        column(6,
+               plotOutput("barplot", height = 500)
+        ) #end Column
     ) # end fluidRow
     
 )
@@ -221,8 +226,122 @@ server <- function(input, output, session) {
            } # end both numeric condition
 
             p1
-    })
-    
+            
+            })
+    output$barplot <- renderPlot({
+        # Two unique variables
+        validate(need(input$boxvar1 != input$boxvar2, 
+                          "Please select two unique variables"))
+            
+        # Have at least one numeric variable
+        validate(need(is.numeric(bplot[[input$boxvar1]]) | 
+                              is.numeric(bplot[[input$boxvar2]]),
+                          "Please select at least one numeric variable"))
+        # only one numeric
+        validate(need(is.numeric(bplot[[input$boxvar1]]) == "TRUE" & 
+                          is.numeric(bplot[[input$boxvar2]]) == "FALSE" |
+                          is.numeric(bplot[[input$boxvar1]]) == "FALSE" & 
+                          is.numeric(bplot[[input$boxvar2]]) == "TRUE",
+                      "Cannot be done when there is not a categorical variable"))
+            
+            a <- bplot %>%
+                select(Month, input$boxvar1, input$boxvar2)
+            
+            if (input$boxvar1 == "state" | input$boxvar2 == "state") {
+                # Make it so that state can be either input
+                if (input$boxvar1 == "state") {
+                    names(a)[2] <- "b"
+                    names(a)[3] <- "c"
+                } else {
+                    names(a)[3] <- "b"
+                    names(a)[2] <- "c"
+                }
+                a <- a %>%
+                    group_by(b) %>%
+                    summarize(sum(c, na.rm = T))
+                names(a)[2] <- "c"
+                p2 <- ggplot(a, mapping = aes(x = reorder(b, -c),
+                                              y = c)) +
+                    geom_col() +
+                    theme_bw() +
+                    xlab("")+
+                    ylab("") +
+                    theme(axis.text.x = element_text(angle = 75, vjust = 0.5, hjust=1))
+            } # end state conditions
+            else if (input$boxvar1 == "Age_Group" | input$boxvar2 == "Age_Group") {
+                a <- a %>%
+                    filter(Age_Group != "All Ages", Age_Group != "Not stated")
+                # Make it so that state can be either input
+                if (input$boxvar1 == "Age_Group") {
+                    names(a)[2] <- "b"
+                    names(a)[3] <- "c"
+                } else {
+                    names(a)[3] <- "b"
+                    names(a)[2] <- "c"
+                }
+                a <- a %>%
+                    group_by(b) %>%
+                    summarize(sum(c, na.rm = T))
+                names(a)[2] <- "c"
+                p2 <- ggplot(a, mapping = aes(x = reorder(b, -c),
+                                              y = c)) +
+                    geom_col() +
+                    theme_bw() +
+                    xlab("")+
+                    ylab("") +
+                    theme(axis.text.x = element_text(angle = 75, vjust = 0.5, hjust=1))
+            } # end Age conditions
+            
+            else if (input$boxvar1 == "Condition" | input$boxvar2 == "Condition") {
+                a <- a %>%
+                    filter(Condition != "COVID-19", 
+                           Condition != "All other conditions and causes (residual)")
+                
+                # Make it so that state can be either input
+                if (input$boxvar1 == "Condition") {
+                    names(a)[2] <- "b"
+                    names(a)[3] <- "c"
+                } else {
+                    names(a)[3] <- "b"
+                    names(a)[2] <- "c"
+                }
+                a <- a %>%
+                    group_by(b) %>%
+                    summarize(sum(c, na.rm = T))
+                names(a)[2] <- "c"
+                p2 <- ggplot(a, mapping = aes(x = reorder(b, -c),
+                                              y = c)) +
+                    geom_col() +
+                    theme_bw() +
+                    xlab("")+
+                    ylab("") +
+                    theme(axis.text.x = element_text(angle = 75, vjust = 0.5, hjust=1))
+            } # end Condition conditions
+            
+            
+            else if (input$boxvar1 == "Month" | input$boxvar2 == "Month") {
+                
+                # Make it so that state can be either input
+              
+                names(a)[1] <- "b"
+                names(a)[2] <- "c"
+                
+                a <- a %>%
+                    group_by(b) %>%
+                    summarize(sum(c, na.rm = T))
+                names(a)[2] <- "c"
+                p2 <- ggplot(b, mapping = aes(x = reorder(b, -c),
+                                              y = c)) +
+                    geom_col() +
+                    theme_bw() +
+                    xlab("")+
+                    ylab("") +
+                    theme(axis.text.x = element_text(angle = 75, vjust = 0.5, hjust=1))
+            } # end Month conditions
+            
+            
+            p2
+        })
 }
 
 shinyApp(ui, server)
