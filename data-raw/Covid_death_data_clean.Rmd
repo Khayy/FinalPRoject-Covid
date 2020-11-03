@@ -1,0 +1,60 @@
+---
+title: "Clean_COVID_Deaths"
+author: "DoudouShi"
+date: "11/1/2020"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+library(lubridate)
+#population of U.S and  each states.
+population <- read_csv("data_with_2020.csv")
+
+#popukation of each age group and states.
+age_and_state <- read_csv("COVID-19_by_age_group_and_state__United_States.csv")
+``` 
+
+```{r}
+#Find out the population of each U.S. state and total population of U.S.
+Population <- population %>% 
+  filter(DATE_CODE == "7/1/2019 population estimate") %>% 
+  select(-GEO_ID,-DATE_CODE)  
+Population$pop <- as.numeric(unlist(Population$POP))
+
+sum(Population$pop)#u.s total population is 331433217.
+
+Population %>% 
+  select(-POP) %>% 
+  add_row(NAME = "UStotal", pop = 331433217)->
+ Population 
+names(Population )[2] <- "population"
+head(Population)
+tail(Population)
+```
+ 
+```{r}
+#Combine two tables together
+names(age_and_state)[4] <- "abb"
+abb <- as.character(state.abb)
+NAME <- as.character(state.name)
+s <- cbind(abb,NAME)
+ S <- data.frame(s)
+ S %>% 
+   add_row(NAME = "District of Columbia",abb="DC" ) %>% 
+   add_row(NAME = "Puerto Rico",abb="PR") %>% 
+   add_row(NAME="UStotal",abb="US") %>% #Fill in the abbreviation and name of the missing state
+   inner_join(Population,by = "NAME") %>% 
+   inner_join(age_and_state,by ="abb") -> #Combine two tables together
+   COVID_Deaths
+ 
+   
+ head(COVID_Deaths)
+```
+ 
+```{r}
+# Export to rds file
+write_rds(COVID_Deaths, path = "../data/COVID_Deaths.rds")
+```
+ 
+ 
