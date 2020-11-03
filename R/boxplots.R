@@ -19,7 +19,13 @@ bplot <- bplot %>%
            Age_Group = `Age Group`,
            Number_of_Deaths = `Number of COVID-19 Deaths`,
            Name = NAME)
-
+b <- ctracking %>%
+    select(state, death, onVentilatorCumulative, positive) %>%
+    filter(state != "AS", state != "GU", state != "MP", state != "VI")
+names(b)[3] <- "Number_of_Deaths"
+names(b)[4] <- "On_Ventilator"
+names(b)[5] <- "Positive_Test"
+    
 #Get rid of rows whose NAME = NA
 bplot <- bplot %>%
     filter(is.na(Name) != "TRUE")
@@ -79,7 +85,6 @@ server <- function(input, output, session) {
                         geom_boxplot(outlier.shape = NA)+
                         xlab("") +
                         ylab("") +
-                        ylim(0,400) +
                         coord_flip()
                 }
             } # end state conditions
@@ -110,10 +115,46 @@ server <- function(input, output, session) {
                         geom_boxplot(outlier.shape = NA)+
                         xlab("") +
                         ylab("") +
-                        ylim(0,275) +
                         coord_flip()
                 }
             } # end age conditions
+           else if (input$boxvar1 == "Condition" | input$boxvar2 == "Condition") {
+               a <- a %>%
+                   filter(Condition != "COVID-19", 
+                          Condition != "All other conditions and causes (residual)")
+               # Make it so that age can be either input
+               if (input$boxvar1 == "Condition") {
+                   names(a)[2] <- "b"
+                   names(a)[3] <- "c"
+               } else {
+                   names(a)[3] <- "b"
+                   names(a)[2] <- "c"
+               }
+               # take into account whether to include outliers
+               if (input$outlier == "Yes") {
+                   p1 <- ggplot(a, mapping = aes(x = b,
+                                                 y = c)) +
+                       geom_boxplot()+
+                       xlab("") +
+                       ylab("") +
+                       coord_flip()
+               } 
+               else if (input$outlier == "No") {
+                   p1 <- ggplot(a, mapping = aes(x = b,
+                                                 y = c)) +
+                       geom_boxplot(outlier.shape = NA)+
+                       xlab("") +
+                       ylab("") +
+                       coord_flip()
+               }
+           } # end Codition workings
+        
+           else if (is.numeric(a[[input$boxvar1]]) & is.numeric(a[[input$boxvar1]])) {
+               
+               p1 <- ggplot(b, mapping = aes(x = !!input$boxvar1, 
+                                             y = !!input$boxvar2)) +
+                   geom_point()
+           } # end both numeric condition
         
             p1 +
                 theme_bw() +
