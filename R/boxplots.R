@@ -31,13 +31,15 @@ ui <- fluidPage(
             varSelectInput("boxvar1", "Please a Variable", data = bplot,
                            selected = "state"),
             varSelectInput("boxvar2", "Please another Variable", data = bplot,
-                           selected = "Number_of_Deaths")
+                           selected = "Number_of_Deaths"),
+            radioButtons("outlier", "Do you want to include outliers?",
+                         choices = c("Yes", "No"))
         ), # End column
         column(8)
     ), # end fluidRow
     fluidRow(title = "Outputs",
         column(12,
-            plotOutput("boxplot")
+            plotOutput("boxplot", height = 700)
         ) # end mainPanel
     ) # end fluidRow
     
@@ -48,28 +50,70 @@ server <- function(input, output, session) {
     output$boxplot <- renderPlot({
         validate(need(input$boxvar1 != "Month" & input$boxvar2 != "Month", 
                       "Please select a different variable"))
+        validate(need(input$boxvar1 != input$boxvar2, 
+                      "Please select two different variables"))
         
         a <- bplot %>%
-            select(input$boxvar1, input$boxvar2)
-        
-            if (input$boxvar1 == "state") {
+            select(Month, input$boxvar1, input$boxvar2)
+
+            if (input$boxvar1 == "state" | input$boxvar2 == "state") {
+                # Make it so that state can be either input
+                if (input$boxvar1 == "state") {
+                    names(a)[2] <- "b"
+                    names(a)[3] <- "c"
+                } else {
+                    names(a)[3] <- "b"
+                    names(a)[2] <- "c"
+                }
+                # take into account whether to include outliers
+                if (input$outlier == "Yes") {
+                    p1 <- ggplot(a, mapping = aes(x = b,
+                                                  y = c)) +
+                        geom_boxplot()+
+                        xlab("") +
+                        ylab("") +
+                        coord_flip()
+                } else if (input$outlier == "No") {
+                    p1 <- ggplot(a, mapping = aes(x = b,
+                                                  y = c)) +
+                        geom_boxplot(outlier.shape = NA)+
+                        xlab("") +
+                        ylab("") +
+                        ylim(0,400) +
+                        coord_flip()
+                }
+            } # end state conditions
+            else if (input$boxvar1 == "Age_Group" | input$boxvar2 == "Age_Group") {
                 a <- a %>%
-                    group_by(state) %>%
-                    summarize(sum(!!input$boxvar2, na.rm = T)) 
-                names(a)[2] <- "b"
-               p1 <- ggplot(a, mapping = aes(x = reorder(!!input$boxvar1, -b), 
-                                        y = b)) +
-                    geom_col()
-            }
-            else if (input$boxvar2 == "state") {
-                #FIX THIS
-                a <- a %>%
-                    group_by(state) %>%
-                    summarize(sum(!!input$boxvar1, na.rm = T)) 
-                p1 <- ggplot(a, mapping = aes(x = sum(!!input$boxvar1, na.rm = T),
-                                              y = !!input$boxvar2)) +
-                    geom_boxplot()
-            }
+                    filter(Age_Group != "All Ages", Age_Group != "Not stated")
+                
+                # Make it so that age can be either input
+                if (input$boxvar1 == "Age_Group") {
+                    names(a)[2] <- "b"
+                    names(a)[3] <- "c"
+                } else {
+                    names(a)[3] <- "b"
+                    names(a)[2] <- "c"
+                }
+                
+                # take into account whether to include outliers
+                if (input$outlier == "Yes") {
+                    p1 <- ggplot(a, mapping = aes(x = b,
+                                                  y = c)) +
+                        geom_boxplot()+
+                        xlab("") +
+                        ylab("") +
+                        coord_flip()
+                } else if (input$outlier == "No") {
+                    p1 <- ggplot(a, mapping = aes(x = b,
+                                                  y = c)) +
+                        geom_boxplot(outlier.shape = NA)+
+                        xlab("") +
+                        ylab("") +
+                        ylim(0,275) +
+                        coord_flip()
+                }
+            } # end age conditions
         
             p1 +
                 theme_bw() +
