@@ -28,7 +28,21 @@ names(b)[5] <- "Positive_Test"
     
 #Get rid of rows whose NAME = NA
 bplot <- bplot %>%
-    filter(is.na(Name) != "TRUE")
+    filter(is.na(Name) != "TRUE") %>%
+    select(-Name)
+
+# Recode month
+bplot <- bplot %>%
+    mutate(Month = recode(Month, 
+                      `2` = "Feb",
+                      `3` = "Mar",
+                      `4` = "Apr",
+                      `5` = "May",
+                      `6` = "Jun",
+                      `7` = "Jul",
+                      `8` = "Aug",
+                      `9` = "Sept",
+                      `10` = "Oct"))
 
 ui <- fluidPage(
   
@@ -37,11 +51,18 @@ ui <- fluidPage(
             varSelectInput("boxvar1", "Please a Variable", data = bplot,
                            selected = "state"),
             varSelectInput("boxvar2", "Please another Variable", data = bplot,
-                           selected = "Number_of_Deaths"),
-            radioButtons("outlier", "Do you want to include outliers?",
-                         choices = c("Yes", "No"))
+                           selected = "Number_of_Deaths")
         ), # End column
-        column(8)
+        column(4,
+               radioButtons("outlier", "Do you want to include outliers?",
+                            choices = c("Yes", "No")),
+               numericInput("ylim", "Please select an uper limit for the graph scale 
+                                     (ONLY APPLICABLE WHEN NOT INCLUDING OUTLIERS). 
+                                     If graph is hard to understand, leave this 
+                                     box blank",
+                           min = 100, max = 1000000000, value = 20000000, step = 1)
+               ),# end Column
+        column(4)
     ), # end fluidRow
     fluidRow(title = "Outputs",
         column(12,
@@ -53,11 +74,15 @@ ui <- fluidPage(
 
 server <- function(input, output, session) {
   
+    # Two unique variables
     output$boxplot <- renderPlot({
-        validate(need(input$boxvar1 != "Month" & input$boxvar2 != "Month", 
-                      "Please select a different variable"))
         validate(need(input$boxvar1 != input$boxvar2, 
-                      "Please select two different variables"))
+                      "Please select two unique variables"))
+        
+        # Have at least one numeric variable
+        validate(need(is.numeric(bplot[[input$boxvar1]]) | 
+                          is.numeric(bplot[[input$boxvar2]]),
+                      "Please select at least one numeric variable"))
         
         a <- bplot %>%
             select(Month, input$boxvar1, input$boxvar2)
@@ -78,14 +103,18 @@ server <- function(input, output, session) {
                         geom_boxplot()+
                         xlab("") +
                         ylab("") +
-                        coord_flip()
+                        coord_flip()+
+                        theme_bw()
+                    
                 } else if (input$outlier == "No") {
                     p1 <- ggplot(a, mapping = aes(x = b,
                                                   y = c)) +
                         geom_boxplot(outlier.shape = NA)+
                         xlab("") +
                         ylab("") +
-                        coord_flip()
+                        ylim(0, input$ylim) +
+                        coord_flip()+
+                        theme_bw()
                 }
             } # end state conditions
             else if (input$boxvar1 == "Age_Group" | input$boxvar2 == "Age_Group") {
@@ -108,14 +137,18 @@ server <- function(input, output, session) {
                         geom_boxplot()+
                         xlab("") +
                         ylab("") +
-                        coord_flip()
+                        coord_flip()+
+                        theme_bw()
+                    
                 } else if (input$outlier == "No") {
                     p1 <- ggplot(a, mapping = aes(x = b,
                                                   y = c)) +
                         geom_boxplot(outlier.shape = NA)+
                         xlab("") +
                         ylab("") +
-                        coord_flip()
+                        ylim(0, input$ylim) +
+                        coord_flip()+
+                        theme_bw()
                 }
             } # end age conditions
            else if (input$boxvar1 == "Condition" | input$boxvar2 == "Condition") {
@@ -137,7 +170,8 @@ server <- function(input, output, session) {
                        geom_boxplot()+
                        xlab("") +
                        ylab("") +
-                       coord_flip()
+                       coord_flip()+
+                       theme_bw()
                } 
                else if (input$outlier == "No") {
                    p1 <- ggplot(a, mapping = aes(x = b,
@@ -145,21 +179,47 @@ server <- function(input, output, session) {
                        geom_boxplot(outlier.shape = NA)+
                        xlab("") +
                        ylab("") +
-                       coord_flip()
+                       ylim(0, input$ylim) +
+                       coord_flip()+
+                       theme_bw()
                }
            } # end Codition workings
+           else if (input$boxvar1 == "Month" | input$boxvar2 == "Month") {
+
+                   names(a)[1] <- "b"
+                   names(a)[2] <- "c"
+               
+               # take into account whether to include outliers
+               if (input$outlier == "Yes") {
+                   p1 <- ggplot(a, mapping = aes(x = b,
+                                                 y = c)) +
+                       geom_boxplot() +
+                       xlab("") +
+                       ylab("") +
+                       coord_flip()+
+                       theme_bw()
+               } 
+               else if (input$outlier == "No") {
+                   p1 <- ggplot(a, mapping = aes(x = b,
+                                                 y = c)) +
+                       geom_boxplot(outlier.shape = NA) +
+                       xlab("") +
+                       ylab("") +
+                       ylim(0, input$ylim) +
+                       coord_flip()+
+                       theme_bw()
+               }
+               
+           }# End Month Condition
         
            else if (is.numeric(a[[input$boxvar1]]) & is.numeric(a[[input$boxvar1]])) {
                
                p1 <- ggplot(b, mapping = aes(x = !!input$boxvar1, 
                                              y = !!input$boxvar2)) +
-                   geom_point()
+                   geom_point() +
+                   theme_bw()
            } # end both numeric condition
-        
-            p1 +
-                theme_bw() +
-                theme(axis.text.x = element_text(angle = 75, vjust = 0.5, hjust=1))
-            
+
             p1
     })
     
