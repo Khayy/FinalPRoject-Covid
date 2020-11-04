@@ -25,6 +25,18 @@ b <- ctracking %>%
 names(b)[3] <- "Number_of_Deaths"
 names(b)[4] <- "On_Ventilator"
 names(b)[5] <- "Positive_Test"
+
+b <- b %>%
+    mutate(Month = recode(Month, 
+                          `2` = "Feb",
+                          `3` = "Mar",
+                          `4` = "Apr",
+                          `5` = "May",
+                          `6` = "Jun",
+                          `7` = "Jul",
+                          `8` = "Aug",
+                          `9` = "Sept",
+                          `10` = "Oct"))
     
 #Get rid of rows whose NAME = NA
 bplot <- bplot %>%
@@ -320,18 +332,23 @@ server <- function(input, output, session) {
             
             
             else if (input$boxvar1 == "Month" | input$boxvar2 == "Month") {
+                if (input$boxvar1 == "Month") {
+                    a <- b %>%
+                        select(Month, !!input$boxvar2)
+                }
+                else {
+                    a <- b %>%
+                        select(Month, !!input$boxvar1)
+                }
                 
-                # Make it so that state can be either input
-              
+                
                 names(a)[1] <- "b"
                 names(a)[2] <- "c"
                 
-                a <- a %>%
-                    group_by(b) %>%
-                    summarize(sum(c, na.rm = T))
-                names(a)[2] <- "c"
-                p2 <- ggplot(b, mapping = aes(x = reorder(b, -c),
-                                              y = c)) +
+                
+                a$b <- as.character(a$b)
+                
+                p2 <- ggplot(a, mapping = aes(x = reorder(b, -c), y = c)) +
                     geom_col() +
                     theme_bw() +
                     xlab("")+
