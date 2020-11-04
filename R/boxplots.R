@@ -202,6 +202,15 @@ server <- function(input, output, session) {
                }
            } # end Codition workings
            else if (input$boxvar1 == "Month" | input$boxvar2 == "Month") {
+               
+               if (input$boxvar1 == "Month") {
+                   a <- b %>%
+                       select(Month, !!input$boxvar2)
+               }
+               else {
+                   a <- b %>%
+                       select(Month, !!input$boxvar1)
+               }
 
                    names(a)[1] <- "b"
                    names(a)[2] <- "c"
