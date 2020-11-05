@@ -13,21 +13,29 @@ parties <- read_rds("../data/political_parties_of_states.rds")
 ctracking <- read_rds("../data/ctracking.rds")
 
 # combine data sets
-ctracking <- left_join(ctracking, parties, by = "state")
+ctracking2 <- left_join(ctracking, parties, by = "state")
 
 #making the New Progressive/Republican Republican
-ctracking$Party[ctracking$Party == "New Progressive/Republican"] <- "Republican"
+ctracking2$Party[ctracking2$Party == "New Progressive/Republican"] <- "Republican"
 
 # rearange dataset for readability
-ctracking <- ctracking %>%
-    select(state, Name, Month, Party, everything())
+ctracking2 <- ctracking2 %>%
+    select(state, Name, Month, Party, death, deathConfirmed, hospitalized,
+           onVentilatorCumulative, negative, positive, pending, recovered) %>%
+  rename(Confirmed_Deaths = deathConfirmed,
+         On_Ventilator = onVentilatorCumulative,
+         Negative_Test = negative,
+         Positive_Test = positive,
+         Pending_Test = pending,
+         Recovered = recovered,
+         NAME = Name)
 
 #BEGIN CONSTRUCTING SHINY APP
 ui <- fluidPage(
 
     sidebarLayout(
         sidebarPanel(
-            varSelectInput("mapvar", "Please select a Variable", data = ctracking,
+            varSelectInput("mapvar", "Please select a Variable", data = ctracking2,
                            selected = "death")
         ), #end sidebarPanel
         mainPanel(
@@ -38,15 +46,23 @@ ui <- fluidPage(
 )
 
 server <- function(input, output, session) {
+    
   output$map <- renderTmap({
+    validate(need(
+      is.numeric(ctracking2[[input$mapvar]]) == "TRUE" & input$mapvar != "Month",
+      "Please select a numeric variable"
+    ))
       tmap_mode("view")
-      tm_shape(us_states, projection = 2163) +
-          tm_polygons() +
-          tm_layout(frame = FALSE)
+      tm_shape(us_states) +
+          tm_polygons(col = reactive({ctracking2[[input$mapvar]]}))
   }) # End renderTmap
   
   output$map_anova <- renderPrint({
-      summary(aov(ctracking[[input$mapvar]] ~ Party, data = ctracking))
+    validate(need(
+      is.numeric(ctracking2[[input$mapvar]]) == "TRUE" & input$mapvar != "Month",
+      "Please select a numeric variable"
+    ))
+      summary(aov(ctracking2[[input$mapvar]] ~ Party, data = ctracking2))
   }) # End renderTable
 }
 
