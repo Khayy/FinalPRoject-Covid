@@ -68,8 +68,10 @@ ui <- fluidPage(
                            selected = "Number_of_Deaths")
         ), # End column
         column(4,
-               radioButtons("outlier", "Do you want to include outliers?",
-                            choices = c("Yes", "No")),
+               checkboxInput("outlier", "Do you want to include outliers (Only 
+                                        Applicable when selecting one categorical variable
+                                        and one numeric variable)?", 
+                             value = TRUE),
                numericInput("ylim", "Please select an uper limit for the graph scale 
                                      (ONLY APPLICABLE WHEN NOT INCLUDING OUTLIERS). 
                                      If graph is hard to understand, leave this 
@@ -114,7 +116,7 @@ server <- function(input, output, session) {
                     names(a)[2] <- "c"
                 }
                 # take into account whether to include outliers
-                if (input$outlier == "Yes") {
+                if (input$outlier == TRUE) {
                     p1 <- ggplot(a, mapping = aes(x = b,
                                                   y = c)) +
                         geom_boxplot()+
@@ -123,7 +125,7 @@ server <- function(input, output, session) {
                         coord_flip()+
                         theme_bw()
                     
-                } else if (input$outlier == "No") {
+                } else if (input$outlier == FALSE) {
                     p1 <- ggplot(a, mapping = aes(x = b,
                                                   y = c)) +
                         geom_boxplot(outlier.shape = NA)+
@@ -148,7 +150,7 @@ server <- function(input, output, session) {
                 }
                 
                 # take into account whether to include outliers
-                if (input$outlier == "Yes") {
+                if (input$outlier == TRUE) {
                     p1 <- ggplot(a, mapping = aes(x = b,
                                                   y = c)) +
                         geom_boxplot()+
@@ -157,7 +159,7 @@ server <- function(input, output, session) {
                         coord_flip()+
                         theme_bw()
                     
-                } else if (input$outlier == "No") {
+                } else if (input$outlier == FALSE) {
                     p1 <- ggplot(a, mapping = aes(x = b,
                                                   y = c)) +
                         geom_boxplot(outlier.shape = NA)+
@@ -181,7 +183,7 @@ server <- function(input, output, session) {
                    names(a)[2] <- "c"
                }
                # take into account whether to include outliers
-               if (input$outlier == "Yes") {
+               if (input$outlier == TRUE) {
                    p1 <- ggplot(a, mapping = aes(x = b,
                                                  y = c)) +
                        geom_boxplot()+
@@ -190,7 +192,7 @@ server <- function(input, output, session) {
                        coord_flip()+
                        theme_bw()
                } 
-               else if (input$outlier == "No") {
+               else if (input$outlier == FALSE) {
                    p1 <- ggplot(a, mapping = aes(x = b,
                                                  y = c)) +
                        geom_boxplot(outlier.shape = NA)+
@@ -216,7 +218,7 @@ server <- function(input, output, session) {
                    names(a)[2] <- "c"
                
                # take into account whether to include outliers
-               if (input$outlier == "Yes") {
+               if (input$outlier == TRUE) {
                    p1 <- ggplot(a, mapping = aes(x = b,
                                                  y = c)) +
                        geom_boxplot() +
@@ -225,7 +227,7 @@ server <- function(input, output, session) {
                        coord_flip()+
                        theme_bw()
                } 
-               else if (input$outlier == "No") {
+               else if (input$outlier == FALSE) {
                    p1 <- ggplot(a, mapping = aes(x = b,
                                                  y = c)) +
                        geom_boxplot(outlier.shape = NA) +
