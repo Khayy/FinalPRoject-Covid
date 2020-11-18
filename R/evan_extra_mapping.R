@@ -52,9 +52,10 @@ selection <- function(a) {
 
 } # end function
 
+# apply function to data
 ctracking2 <- selection(ctracking2)
   
-# rearrange dataset for readability
+# rearrange data for readability
 ctracking2 <- ctracking2 %>%
     select(Month, state,Name, Party, deathIncrease, hospitalizedCumulative,
            onVentilatorCumulative, negativeIncrease, positiveIncrease, recovered) %>%
@@ -94,6 +95,7 @@ ui <- fluidPage(
         sidebarPanel(
             varSelectInput("mapvar", "Please Select a Variable to Map", data = ctracking2,
                            selected = "death"),
+            textOutput("Intro"),
             tableOutput("map_anova")
         ), #end sidebarPanel
         mainPanel(
@@ -253,6 +255,10 @@ server <- function(input, output, session) {
     } else if (input$mapvar == "Recovered") {
       "CAUTION: Incomplete data number of Recovered COVID Patients"
     }
+  })
+  
+  output$intro <- renderText({
+    "testing to see if means differ by political party of Governor"
   })
 }
 
