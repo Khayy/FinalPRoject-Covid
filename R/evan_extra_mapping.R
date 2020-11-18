@@ -70,7 +70,7 @@ ctracking2 <- ctracking2 %>%
 
 # Get info by state
 ctracking2 <- ctracking2 %>%
-  group_by(state, NAME, Party, recovered) %>%
+  group_by(state, NAME, Party, Recovered) %>%
   summarise(On_Ventilator = sum(On_Ventilator), 
             Negative_Test = sum(Negative_Test),
             Positive_Test = sum(Positive_Test),
@@ -95,7 +95,7 @@ ui <- fluidPage(
         sidebarPanel(
             varSelectInput("mapvar", "Please Select a Variable to Map", data = ctracking2,
                            selected = "death"),
-            textOutput("Intro"),
+            textOutput("intro"),
             tableOutput("map_anova")
         ), #end sidebarPanel
         mainPanel(
@@ -258,7 +258,7 @@ server <- function(input, output, session) {
   })
   
   output$intro <- renderText({
-    "testing to see if means differ by political party of Governor"
+    "Testing to see if means differ by political party of Governor"
   })
 }
 
