@@ -10,17 +10,23 @@ ctracking <- read_rds("../data/ctracking.rds")
 # combine data sets
 bplot <- left_join(ctracking, death, by = c("state" = "abb"))
 
+# Do some general cleaning
+bplot <- bplot %>%
+  filter(`Age Group` != "All Ages", `Age Group` != "Not stated", 
+         `Condition Group` != "COVID-19", Condition != "COVID-19")
+
 #Select the important Variables
 bplot <- bplot %>%
     select(state, NAME, `Age Group`, Condition, 
-           `Number of COVID-19 Deaths`, positive, onVentilatorCurrently) %>%
-    rename(Positive_Test = positive,
+           `Number of COVID-19 Deaths`, positiveIncrease, onVentilatorCurrently) %>%
+    rename(Positive_Test = positiveIncrease,
            On_Ventilator = onVentilatorCurrently,
            Age_Group = `Age Group`,
            Number_of_Deaths = `Number of COVID-19 Deaths`,
            Name = NAME)
+
 b <- ctracking %>%
-    select(state, death, onVentilatorCumulative, positive) %>%
+    select(state, deathIncrease, onVentilatorCumulative, positiveIncrease) %>%
     filter(state != "AS", state != "GU", state != "MP", state != "VI")
 names(b)[3] <- "Number_of_Deaths"
 names(b)[4] <- "On_Ventilator"
