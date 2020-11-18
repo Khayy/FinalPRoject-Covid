@@ -76,3 +76,5 @@ knitr::kable(tibble::tribble(
 Center for Disease Control and Prevention. (2020, October 14). Conditions contributing to deaths involving coronavirus disease 2019 (COVID-19), by age group and state, United States. https://healthdata.gov/dataset/conditions-contributing-deaths-involving-coronavirus-disease-2019-covid-19-age-group-and. 
 
 Our Data. The COVID Tracking Project. (2020). https://covidtracking.com/data/download. 
+
+Partisan Composition of Governors. Ballotpedia (2020). https://ballotpedia.org/Partisan_composition_of_governors
