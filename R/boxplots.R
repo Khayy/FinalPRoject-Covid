@@ -84,7 +84,8 @@ ui <- fluidPage(
                                      box blank",
                            min = 100, max = 1000000000, value = 20000000, step = 1)
                ),# end Column
-        column(4)
+        column(4,
+               textOutput("warning"))
     ), # end fluidRow
     fluidRow(title = "Outputs",
         column(6,
@@ -376,6 +377,12 @@ server <- function(input, output, session) {
             
             p2
         })
+    
+    output$warning <- renderText({
+      if (input$boxvar1 == "On_Ventilator" | input$boxvar2 == "On_Ventilator") {
+        "CAUTION: Incomplete data number of Recovered COVID Patients"
+      }
+    })
 }
 
 shinyApp(ui, server)
