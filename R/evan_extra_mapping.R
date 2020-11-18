@@ -56,26 +56,32 @@ ctracking2 <- selection(ctracking2)
   
 # rearrange dataset for readability
 ctracking2 <- ctracking2 %>%
-    select(Month, state,Name, Party, death, hospitalizedCumulative,
-           onVentilatorCumulative, negative, positive, recovered) %>%
+    select(Month, state,Name, Party, deathIncrease, hospitalizedCumulative,
+           onVentilatorCumulative, negativeIncrease, positiveIncrease, recovered) %>%
   rename(
          On_Ventilator = onVentilatorCumulative,
-         Negative_Test = negative,
-         Positive_Test = positive,
+         Negative_Test = negativeIncrease,
+         Positive_Test = positiveIncrease,
          Recovered = recovered,
          NAME = Name,
-         Hospitalized = hospitalizedCumulative)
+         Hospitalized = hospitalizedCumulative,
+         death = deathIncrease)
 
-# Get most recent data
+# Get info by state
 ctracking2 <- ctracking2 %>%
-  filter(Month == 10)
+  group_by(state, NAME, Party, recovered) %>%
+  summarise(On_Ventilator = sum(On_Ventilator), 
+            Negative_Test = sum(Negative_Test),
+            Positive_Test = sum(Positive_Test),
+            Hospitalized = sum(Hospitalized),
+            death = sum(death)) %>%
+  select(state, NAME, Party, death, Positive_Test, Negative_Test, everything())
 
 #get the state spacial data
 states <- states()
 
 # remove observations in state that are not in ctracking2
 states <- semi_join(states, ctracking2, by = c("STUSPS" = "state"))
-
 
 # combine spatial data to normal data
 mapping <- geo_join(states, ctracking2, "NAME", "NAME")
@@ -115,7 +121,7 @@ server <- function(input, output, session) {
       pal <- colorNumeric("Reds", domain=mapping$death)
       
       # Setting up the pop up text
-      popup_sb <- paste0(mapping$NAME," ", mapping$death)
+      popup_sb <- paste0(mapping$NAME,": ", mapping$death)
       
       leaf %>%
         addPolygons(data = mapping, 
@@ -134,7 +140,7 @@ server <- function(input, output, session) {
       pal <- colorNumeric("Reds", domain=mapping$Hospitalized)
       
       # Setting up the pop up text
-      popup_sb <- paste0(mapping$NAME," ", mapping$Hospitalized)
+      popup_sb <- paste0(mapping$NAME,": ", mapping$Hospitalized)
       
       leaf %>%
         addPolygons(data = mapping , 
@@ -153,7 +159,7 @@ server <- function(input, output, session) {
       pal <- colorNumeric("Reds", domain=mapping$On_Ventilator)
       
       # Setting up the pop up text
-      popup_sb <- paste0(mapping$NAME," ", mapping$On_Ventilator)
+      popup_sb <- paste0(mapping$NAME,": ", mapping$On_Ventilator)
       
       leaf %>%
         addPolygons(data = mapping , 
@@ -172,7 +178,7 @@ server <- function(input, output, session) {
       pal <- colorNumeric("Reds", domain=mapping$Negative_Test)
       
       # Setting up the pop up text
-      popup_sb <- paste0(mapping$NAME," ", mapping$Negative_Test)
+      popup_sb <- paste0(mapping$NAME,": ", mapping$Negative_Test)
       
       leaf %>%
         addPolygons(data = mapping , 
@@ -191,7 +197,7 @@ server <- function(input, output, session) {
       pal <- colorNumeric("Reds", domain=mapping$Positive_Test)
       
       # Setting up the pop up text
-      popup_sb <- paste0(mapping$NAME," ", mapping$Positive_Test)
+      popup_sb <- paste0(mapping$NAME,": ", mapping$Positive_Test)
       
       leaf %>%
         addPolygons(data = mapping , 
@@ -210,7 +216,7 @@ server <- function(input, output, session) {
       pal <- colorNumeric("Reds", domain=mapping$Recovered)
       
       # Setting up the pop up text
-      popup_sb <- paste0(mapping$NAME," ", mapping$Recovered)
+      popup_sb <- paste0(mapping$NAME,": ", mapping$Recovered)
       
       leaf %>%
         addPolygons(data = mapping , 
