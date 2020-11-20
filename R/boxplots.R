@@ -7,21 +7,26 @@ library(broom)
 death <- read_rds("../data/COVID_Deaths.rds")
 ctracking <- read_rds("../data/ctracking.rds")
 
-# combine data sets
-bplot <- left_join(ctracking, death, by = c("state" = "abb"))
+# filter death data
+death1 <- death %>%
+  filter(`Age Group` != "All Ages" & `Age Group` != "Not stated" &
+           `Condition Group` != "COVID-19" & Condition != "COVID-19")
 
-# Do some general cleaning
-bplot <- bplot %>%
-  filter(`Age Group` != "All Ages", `Age Group` != "Not stated", 
-         `Condition Group` != "COVID-19", Condition != "COVID-19")
+# group the ctracking data
+ctracking1 <- ctracking %>%
+  select(state, positiveIncrease, onVentilatorCurrently) %>%
+  group_by(state) %>%
+  summarise(Positive_Test = sum(positiveIncrease, na.rm = T),
+            On_Ventilator = sum(onVentilatorCurrently, na.rm = T))
+
+# combine data sets
+bplot <- inner_join(ctracking1, death1, by = c("state" = "abb"))
 
 #Select the important Variables
 bplot <- bplot %>%
     select(state, NAME, `Age Group`, Condition, 
-           `Number of COVID-19 Deaths`, positiveIncrease, onVentilatorCurrently) %>%
-    rename(Positive_Test = positiveIncrease,
-           On_Ventilator = onVentilatorCurrently,
-           Age_Group = `Age Group`,
+           `Number of COVID-19 Deaths`, Positive_Test, On_Ventilator) %>%
+    rename(Age_Group = `Age Group`,
            Number_of_Deaths = `Number of COVID-19 Deaths`,
            Name = NAME)
 
@@ -31,6 +36,33 @@ b <- ctracking %>%
 names(b)[3] <- "Number_of_Deaths"
 names(b)[4] <- "On_Ventilator"
 names(b)[5] <- "Positive_Test"
+
+# combine two original datasets to get distribution for positive tests and ventilators
+bplot2 <- inner_join(ctracking, death, by = c("state" = "abb"))
+
+bplot2 <- bplot2 %>%
+  select(Month, state, NAME, `Age Group`, Condition, `Number of COVID-19 Deaths`,
+         positiveIncrease, onVentilatorCurrently) %>%
+  rename(Age_Group = `Age Group`,
+         Number_of_Deaths = `Number of COVID-19 Deaths`,
+         Positive_Test = positiveIncrease,
+         On_Ventilator = onVentilatorCurrently,
+         Name = NAME) %>%
+  mutate(Month = recode(Month, 
+                        `2` = "Feb",
+                        `3` = "Mar",
+                        `4` = "Apr",
+                        `5` = "May",
+                        `6` = "Jun",
+                        `7` = "Jul",
+                        `8` = "Aug",
+                        `9` = "Sept",
+                        `10` = "Oct")) %>%
+  filter(is.na(Name) != "TRUE") %>%
+  select(-Name) %>%
+  mutate(Condition = recode(Condition,
+                            `Intentional and unintentional injury, poisoning, and other adverse events` = "Other adverse events"))
+
 
 b <- b %>%
     mutate(Month = recode(Month, 
@@ -47,30 +79,17 @@ b <- b %>%
 #Get rid of rows whose NAME = NA
 bplot <- bplot %>%
     filter(is.na(Name) != "TRUE") %>%
-    select(-Name)
-
-# Recode month
-bplot <- bplot %>%
-    mutate(Month = recode(Month, 
-                      `2` = "Feb",
-                      `3` = "Mar",
-                      `4` = "Apr",
-                      `5` = "May",
-                      `6` = "Jun",
-                      `7` = "Jul",
-                      `8` = "Aug",
-                      `9` = "Sept",
-                      `10` = "Oct"),
-           Condition = recode(Condition,
-                             `Intentional and unintentional injury, poisoning, and other adverse events` = "Other adverse events"))
+    select(-Name) %>%
+    mutate(Condition = recode(Condition,
+                              `Intentional and unintentional injury, poisoning, and other adverse events` = "Other adverse events"))
 
 ui <- fluidPage(
   
     fluidRow(title = "Inputs",
         column(4,
-            varSelectInput("boxvar1", "Please a Variable", data = bplot,
-                           selected = "state"),
-            varSelectInput("boxvar2", "Please another Variable", data = bplot,
+            varSelectInput("boxvar1", "Please a Variable", data = bplot2,
+                           selected = "Month"),
+            varSelectInput("boxvar2", "Please another Variable", data = bplot2,
                            selected = "Number_of_Deaths")
         ), # End column
         column(4,
@@ -82,7 +101,7 @@ ui <- fluidPage(
                                      (ONLY APPLICABLE WHEN NOT INCLUDING OUTLIERS). 
                                      If graph is hard to understand, leave this 
                                      box blank",
-                           min = 100, max = 1000000000, value = 20000000, step = 1)
+                           min = 100, max = 1000000000, value = 20000, step = 1)
                ),# end Column
         column(4,
                textOutput("warning"))
@@ -110,18 +129,42 @@ server <- function(input, output, session) {
                           is.numeric(bplot[[input$boxvar2]]),
                       "Please select at least one numeric variable"))
         
-        a <- bplot %>%
+
+        if (input$boxvar1 == "Number_of_Deaths" | input$boxvar2 == "Number_of_Deaths") {
+          if (input$boxvar1 == "Month" | input$boxvar2 == "Month") {
+            a <- bplot2 %>%
+              select(Month, input$boxvar1, input$boxvar2)
+          } else {
+            a <- bplot %>%
+              select(input$boxvar1, input$boxvar2)
+          }
+        } else {
+          a <- bplot2 %>%
             select(Month, input$boxvar1, input$boxvar2)
+        }
+        
+        
 
             if (input$boxvar1 == "state" | input$boxvar2 == "state") {
                 # Make it so that state can be either input
+              if (input$boxvar1 == "Number_of_Deaths" | input$boxvar2 == "Number_of_Deaths") {
                 if (input$boxvar1 == "state") {
-                    names(a)[2] <- "b"
-                    names(a)[3] <- "c"
+                  names(a)[1] <- "b"
+                  names(a)[2] <- "c"
                 } else {
-                    names(a)[3] <- "b"
-                    names(a)[2] <- "c"
+                  names(a)[2] <- "b"
+                  names(a)[1] <- "c"
                 }
+              } else {
+                if (input$boxvar1 == "state") {
+                  names(a)[2] <- "b"
+                  names(a)[3] <- "c"
+                } else {
+                  names(a)[3] <- "b"
+                  names(a)[2] <- "c"
+                }
+              }
+                
                 # take into account whether to include outliers
                 if (input$outlier == TRUE) {
                     p1 <- ggplot(a, mapping = aes(x = b,
@@ -132,7 +175,7 @@ server <- function(input, output, session) {
                         coord_flip()+
                         theme_bw()
                     
-                } else if (input$outlier == FALSE) {
+                }  else if (input$outlier == FALSE) {
                     p1 <- ggplot(a, mapping = aes(x = b,
                                                   y = c)) +
                         geom_boxplot(outlier.shape = NA)+
@@ -143,17 +186,59 @@ server <- function(input, output, session) {
                         theme_bw()
                 }
             } # end state conditions
-            else if (input$boxvar1 == "Age_Group" | input$boxvar2 == "Age_Group") {
+        if (input$boxvar1 == "Month" | input$boxvar2 == "Month") {
+          
+          
+          names(a)[1] <- "b"
+          names(a)[2] <- "c"
+          
+          a$b <- as.character(a$b)
+          a$b <- factor(a$b, levels = c("Feb",  "Mar",  "Apr",  "May",
+                                        "Jun",  "Jul",  "Aug",  "Sept", "Oct"))
+          
+          # take into account whether to include outliers
+          if (input$outlier == TRUE) {
+            p1 <- ggplot(a, mapping = aes(x = b,
+                                          y = c)) +
+              geom_boxplot() +
+              xlab("") +
+              ylab("") +
+              coord_flip()+
+              theme_bw()
+          } 
+          else if (input$outlier == FALSE) {
+            p1 <- ggplot(a, mapping = aes(x = b,
+                                          y = c)) +
+              geom_boxplot(outlier.shape = NA) +
+              xlab("") +
+              ylab("") +
+              ylim(0, input$ylim) +
+              coord_flip()+
+              theme_bw()
+          }
+          
+        }# End Month Condition
+             if (input$boxvar1 == "Age_Group" | input$boxvar2 == "Age_Group") {
                 a <- a %>%
                     filter(Age_Group != "All Ages", Age_Group != "Not stated")
                 
                 # Make it so that age can be either input
-                if (input$boxvar1 == "Age_Group") {
+                if (input$boxvar1 == "Number_of_Deaths" | input$boxvar2 == "Number_of_Deaths") {
+                  if (input$boxvar1 == "Age_Group") {
+                    names(a)[1] <- "b"
+                    names(a)[2] <- "c"
+                  } else {
+                    names(a)[2] <- "b"
+                    names(a)[1] <- "c"
+                  }
+                } else {
+                  if (input$boxvar1 == "Age_Group") {
                     names(a)[2] <- "b"
                     names(a)[3] <- "c"
-                } else {
+                  } else {
                     names(a)[3] <- "b"
                     names(a)[2] <- "c"
+                  }
                 }
                 
                 # take into account whether to include outliers
@@ -177,17 +262,27 @@ server <- function(input, output, session) {
                         theme_bw()
                 }
             } # end age conditions
-           else if (input$boxvar1 == "Condition" | input$boxvar2 == "Condition") {
+            if (input$boxvar1 == "Condition" | input$boxvar2 == "Condition") {
                a <- a %>%
                    filter(Condition != "COVID-19", 
                           Condition != "All other conditions and causes (residual)")
                # Make it so that age can be either input
-               if (input$boxvar1 == "Condition") {
+               if (input$boxvar1 == "Number_of_Deaths" | input$boxvar2 == "Number_of_Deaths") {
+                 if (input$boxvar1 == "Condition") {
+                   names(a)[1] <- "b"
+                   names(a)[2] <- "c"
+                 } else {
+                   names(a)[2] <- "b"
+                   names(a)[1] <- "c"
+                 }
+               } else {
+                 if (input$boxvar1 == "Condition") {
                    names(a)[2] <- "b"
                    names(a)[3] <- "c"
-               } else {
+                 } else {
                    names(a)[3] <- "b"
                    names(a)[2] <- "c"
+                 }
                }
                # take into account whether to include outliers
                if (input$outlier == TRUE) {
@@ -210,44 +305,8 @@ server <- function(input, output, session) {
                        theme_bw()
                }
            } # end Codition workings
-           else if (input$boxvar1 == "Month" | input$boxvar2 == "Month") {
-               
-               if (input$boxvar1 == "Month") {
-                   a <- b %>%
-                       select(Month, !!input$boxvar2)
-               }
-               else {
-                   a <- b %>%
-                       select(Month, !!input$boxvar1)
-               }
-
-                   names(a)[1] <- "b"
-                   names(a)[2] <- "c"
-               
-               # take into account whether to include outliers
-               if (input$outlier == TRUE) {
-                   p1 <- ggplot(a, mapping = aes(x = b,
-                                                 y = c)) +
-                       geom_boxplot() +
-                       xlab("") +
-                       ylab("") +
-                       coord_flip()+
-                       theme_bw()
-               } 
-               else if (input$outlier == FALSE) {
-                   p1 <- ggplot(a, mapping = aes(x = b,
-                                                 y = c)) +
-                       geom_boxplot(outlier.shape = NA) +
-                       xlab("") +
-                       ylab("") +
-                       ylim(0, input$ylim) +
-                       coord_flip()+
-                       theme_bw()
-               }
-               
-           }# End Month Condition
         
-           else if (is.numeric(a[[input$boxvar1]]) & is.numeric(a[[input$boxvar1]])) {
+            if (is.numeric(a[[input$boxvar1]]) & is.numeric(a[[input$boxvar1]])) {
                
                p1 <- ggplot(b, mapping = aes(x = !!input$boxvar1, 
                                              y = !!input$boxvar2)) +
@@ -259,6 +318,8 @@ server <- function(input, output, session) {
             
             })
     output$barplot <- renderPlot({
+      
+
         # Two unique variables
         validate(need(input$boxvar1 != input$boxvar2, 
                           "Please select two unique variables"))
@@ -274,18 +335,38 @@ server <- function(input, output, session) {
                           is.numeric(bplot[[input$boxvar2]]) == "TRUE",
                       "Cannot be done when there is not a categorical variable"))
             
+        if (input$boxvar1 == "Number_of_Deaths" | input$boxvar2 == "Number_of_Deaths") {
+          if (input$boxvar1 == "Month" | input$boxvar2 == "Month") {
+            a <- bplot2 %>%
+              select(Month, input$boxvar1, input$boxvar2)
+          } else {
             a <- bplot %>%
-                select(Month, input$boxvar1, input$boxvar2)
+              select(input$boxvar1, input$boxvar2)
+          }
+        } else {
+          a <- bplot2 %>%
+            select(Month, input$boxvar1, input$boxvar2)
+        }
             
             if (input$boxvar1 == "state" | input$boxvar2 == "state") {
                 # Make it so that state can be either input
+              if (input$boxvar1 == "Number_of_Deaths" | input$boxvar2 == "Number_of_Deaths") {
                 if (input$boxvar1 == "state") {
-                    names(a)[2] <- "b"
-                    names(a)[3] <- "c"
+                  names(a)[1] <- "b"
+                  names(a)[2] <- "c"
                 } else {
-                    names(a)[3] <- "b"
-                    names(a)[2] <- "c"
+                  names(a)[2] <- "b"
+                  names(a)[1] <- "c"
                 }
+              } else {
+                if (input$boxvar1 == "state") {
+                  names(a)[2] <- "b"
+                  names(a)[3] <- "c"
+                } else {
+                  names(a)[3] <- "b"
+                  names(a)[2] <- "c"
+                }
+              }
                 a <- a %>%
                     group_by(b) %>%
                     summarize(sum(c, na.rm = T))
@@ -302,12 +383,22 @@ server <- function(input, output, session) {
                 a <- a %>%
                     filter(Age_Group != "All Ages", Age_Group != "Not stated")
                 # Make it so that state can be either input
-                if (input$boxvar1 == "Age_Group") {
+                if (input$boxvar1 == "Number_of_Deaths" | input$boxvar2 == "Number_of_Deaths") {
+                  if (input$boxvar1 == "Age_Group") {
+                    names(a)[1] <- "b"
+                    names(a)[2] <- "c"
+                  } else {
+                    names(a)[2] <- "b"
+                    names(a)[1] <- "c"
+                  }
+                } else {
+                  if (input$boxvar1 == "Age_Group") {
                     names(a)[2] <- "b"
                     names(a)[3] <- "c"
-                } else {
+                  } else {
                     names(a)[3] <- "b"
                     names(a)[2] <- "c"
+                  }
                 }
                 a <- a %>%
                     group_by(b) %>%
@@ -328,16 +419,27 @@ server <- function(input, output, session) {
                            Condition != "All other conditions and causes (residual)")
                 
                 # Make it so that state can be either input
-                if (input$boxvar1 == "Condition") {
+                if (input$boxvar1 == "Number_of_Deaths" | input$boxvar2 == "Number_of_Deaths") {
+                  if (input$boxvar1 == "Condition") {
+                    names(a)[1] <- "b"
+                    names(a)[2] <- "c"
+                  } else {
+                    names(a)[2] <- "b"
+                    names(a)[1] <- "c"
+                  }
+                } else {
+                  if (input$boxvar1 == "Condition") {
                     names(a)[2] <- "b"
                     names(a)[3] <- "c"
-                } else {
+                  } else {
                     names(a)[3] <- "b"
                     names(a)[2] <- "c"
+                  }
                 }
                 a <- a %>%
                     group_by(b) %>%
-                    summarize(sum(c, na.rm = T))
+                    summarise(sum(c, na.rm = T))
+                
                 names(a)[2] <- "c"
                 p2 <- ggplot(a, mapping = aes(x = reorder(b, -c),
                                               y = c)) +
@@ -363,10 +465,12 @@ server <- function(input, output, session) {
                 names(a)[1] <- "b"
                 names(a)[2] <- "c"
                 
-                
+
                 a$b <- as.character(a$b)
+                a$b <- factor(a$b, levels = c("Feb",  "Mar",  "Apr",  "May",
+                                              "Jun",  "Jul",  "Aug",  "Sept", "Oct"))
                 
-                p2 <- ggplot(a, mapping = aes(x = reorder(b, -c), y = c)) +
+                p2 <- ggplot(a, mapping = aes(x = b, y = c)) +
                     geom_col() +
                     theme_bw() +
                     xlab("")+
