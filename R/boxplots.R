@@ -6,6 +6,7 @@ library(broom)
 # Load Data
 death <- read_rds("../data/COVID_Deaths.rds")
 ctracking <- read_rds("../data/ctracking.rds")
+age <- read_rds("../data/age_gender.rds")
 
 # filter death data
 death1 <- death %>%
@@ -37,12 +38,18 @@ names(b)[3] <- "Number_of_Deaths"
 names(b)[4] <- "On_Ventilator"
 names(b)[5] <- "Positive_Test"
 
-# combine two original datasets to get distribution for positive tests and ventilators
+# group age by sex
+age2 <- age %>%
+  group_by(State, Sex) %>%
+  summarize(Deaths = sum(Deaths, na.rm = T))
+
+# combine original datasets to get distribution for positive tests and ventilators
 bplot2 <- inner_join(ctracking, death, by = c("state" = "abb"))
+bplot2 <- inner_join(bplot2, age2, by = c("NAME" = "State"))
 
 bplot2 <- bplot2 %>%
   select(Month, state, NAME, `Age Group`, Condition, `Number of COVID-19 Deaths`,
-         positiveIncrease, onVentilatorCurrently) %>%
+         positiveIncrease, onVentilatorCurrently, Sex) %>%
   rename(Age_Group = `Age Group`,
          Number_of_Deaths = `Number of COVID-19 Deaths`,
          Positive_Test = positiveIncrease,
@@ -130,7 +137,11 @@ server <- function(input, output, session) {
                       "Please select at least one numeric variable"))
         
 
-        if (input$boxvar1 == "Number_of_Deaths" | input$boxvar2 == "Number_of_Deaths") {
+        if (input$boxvar1 == "Sex" | input$boxvar2 == "Sex") {
+          a <- age2 %>%
+            select(Sex, Deaths)
+        }
+        else if (input$boxvar1 == "Number_of_Deaths" | input$boxvar2 == "Number_of_Deaths") {
           if (input$boxvar1 == "Month" | input$boxvar2 == "Month") {
             a <- bplot2 %>%
               select(Month, input$boxvar1, input$boxvar2)
@@ -186,6 +197,33 @@ server <- function(input, output, session) {
                         theme_bw()
                 }
             } # end state conditions
+         if (input$boxvar1 == "Sex" | input$boxvar2 == "Sex") {
+          # Make it so that state can be either input
+          
+          names(a)[2] <- "b"
+          names(a)[3] <- "c"
+          
+          # take into account whether to include outliers
+          if (input$outlier == TRUE) {
+            p1 <- ggplot(a, mapping = aes(x = b,
+                                          y = c)) +
+              geom_boxplot()+
+              xlab("") +
+              ylab("") +
+              coord_flip()+
+              theme_bw()
+            
+          }  else if (input$outlier == FALSE) {
+            p1 <- ggplot(a, mapping = aes(x = b,
+                                          y = c)) +
+              geom_boxplot(outlier.shape = NA)+
+              xlab("") +
+              ylab("") +
+              ylim(0, input$ylim) +
+              coord_flip()+
+              theme_bw()
+          }
+        } # end sex conditions
         if (input$boxvar1 == "Month" | input$boxvar2 == "Month") {
           
           
@@ -335,7 +373,11 @@ server <- function(input, output, session) {
                           is.numeric(bplot[[input$boxvar2]]) == "TRUE",
                       "Cannot be done when there is not a categorical variable"))
             
-        if (input$boxvar1 == "Number_of_Deaths" | input$boxvar2 == "Number_of_Deaths") {
+        if (input$boxvar1 == "Sex" | input$boxvar2 == "Sex") {
+          a <- age2 %>%
+            select(Sex, Deaths)
+        }
+        else if (input$boxvar1 == "Number_of_Deaths" | input$boxvar2 == "Number_of_Deaths") {
           if (input$boxvar1 == "Month" | input$boxvar2 == "Month") {
             a <- bplot2 %>%
               select(Month, input$boxvar1, input$boxvar2)
@@ -379,6 +421,27 @@ server <- function(input, output, session) {
                     ylab("") +
                     theme(axis.text.x = element_text(angle = 75, vjust = 0.5, hjust=1))
             } # end state conditions
+        
+         if (input$boxvar1 == "Sex" | input$boxvar2 == "Sex") {
+          # Make it so that state can be either input
+           
+
+          names(a)[2] <- "b"
+          names(a)[3] <- "c"
+          
+          a <- a %>%
+            group_by(b) %>%
+            summarize(sum(c, na.rm = T))
+          names(a)[2] <- "c"
+          p2 <- ggplot(a, mapping = aes(x = reorder(b, -c),
+                                        y = c)) +
+            geom_col() +
+            theme_bw() +
+            xlab("")+
+            ylab("") +
+            theme(axis.text.x = element_text(angle = 75, vjust = 0.5, hjust=1))
+        } # end sex conditions
+        
             else if (input$boxvar1 == "Age_Group" | input$boxvar2 == "Age_Group") {
                 a <- a %>%
                     filter(Age_Group != "All Ages", Age_Group != "Not stated")
