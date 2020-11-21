@@ -12,7 +12,7 @@ library(lubridate)
 population <- read_csv("data_with_2020.csv")
 
 #popukation of each age group and states.
-age_and_state <- read_csv("COVID-19_by_age_group_and_state__United_States.csv")
+age_and_state <- read_csv("conditions_11:14.csv")
 ``` 
 
 ```{r}
