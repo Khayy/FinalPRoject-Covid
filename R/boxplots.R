@@ -136,6 +136,17 @@ server <- function(input, output, session) {
                           is.numeric(bplot[[input$boxvar2]]),
                       "Please select at least one numeric variable"))
         
+        validate(need(input$boxvar1 == "Month" & input$boxvar2 == "Number_of_Deaths" |
+                        input$boxvar1 == "state" & input$boxvar2 == "Number_of_Deaths" |
+                        input$boxvar1 == "Age_Group" & input$boxvar2 == "Number_of_Deaths" |
+                        input$boxvar1 == "Condition" & input$boxvar2 == "Number_of_Deaths" |
+                        input$boxvar1 == "Sex" & input$boxvar2 == "Number_of_Deaths" |
+                        input$boxvar1 == "Month" & input$boxvar2 == "Positive_Test" |
+                        input$boxvar1 == "Month" & input$boxvar2 == "On_Ventilator" |
+                        input$boxvar1 == "state" & input$boxvar2 == "Positive_Test" |
+                        input$boxvar1 == "state" & input$boxvar2 == "On_Ventilator",
+                      "Cannot create graphs for selected variables"))
+        
 
         if (input$boxvar1 == "Sex" | input$boxvar2 == "Sex") {
           a <- age2 %>%
@@ -372,6 +383,18 @@ server <- function(input, output, session) {
                           is.numeric(bplot[[input$boxvar1]]) == "FALSE" & 
                           is.numeric(bplot[[input$boxvar2]]) == "TRUE",
                       "Cannot be done when there is not a categorical variable"))
+        
+          
+        validate(need(input$boxvar1 == "Month" & input$boxvar2 == "Number_of_Deaths" |
+                        input$boxvar1 == "state" & input$boxvar2 == "Number_of_Deaths" |
+                        input$boxvar1 == "Age_Group" & input$boxvar2 == "Number_of_Deaths" |
+                        input$boxvar1 == "Condition" & input$boxvar2 == "Number_of_Deaths" |
+                        input$boxvar1 == "Sex" & input$boxvar2 == "Number_of_Deaths" |
+                        input$boxvar1 == "Month" & input$boxvar2 == "Positive_Test" |
+                        input$boxvar1 == "Month" & input$boxvar2 == "On_Ventilator" |
+                        input$boxvar1 == "state" & input$boxvar2 == "Positive_Test" |
+                        input$boxvar1 == "state" & input$boxvar2 == "On_Ventilator",
+                      "Cannot create graphs for selected variables"))
             
         if (input$boxvar1 == "Sex" | input$boxvar2 == "Sex") {
           a <- age2 %>%
