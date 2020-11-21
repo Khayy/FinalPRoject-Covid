@@ -15,10 +15,10 @@ ctracking <- ctracking %>%
 # group data by month
 ctracking <- ctracking %>%
   mutate(Month = month(ymd(date))) %>%
-  select(Month, everything()) %>%
+  select(Month, everything()) %>% 
   select(-date) %>%
   group_by(Month, state) %>%
-  summarise_all(sum, na.rm = TRUE) %>%
+  summarise_all(sum, na.rm = TRUE) %>% 
   arrange(Month, state)
 
 
