@@ -48,8 +48,8 @@ bplot2 <- inner_join(ctracking, death, by = c("state" = "abb"))
 bplot2 <- inner_join(bplot2, age2, by = c("NAME" = "State"))
 
 bplot2 <- bplot2 %>%
-  select(Month, state, NAME, `Age Group`, Condition, `Number of COVID-19 Deaths`,
-         positiveIncrease, onVentilatorCurrently, Sex) %>%
+  select(Month, state, NAME, `Age Group`, Condition, Sex, `Number of COVID-19 Deaths`,
+         positiveIncrease, onVentilatorCurrently) %>%
   rename(Age_Group = `Age Group`,
          Number_of_Deaths = `Number of COVID-19 Deaths`,
          Positive_Test = positiveIncrease,
@@ -120,7 +120,14 @@ ui <- fluidPage(
         column(6,
                plotOutput("barplot", height = 500)
         ) #end Column
-    ) # end fluidRow
+    ), # end fluidRow
+    fluidRow(title = "Overall Death",
+             plotOutput("death", height = 500)),
+    fluidRow(title = "Overall cases",
+             plotOutput("cases", height = 500)),
+    fluidRow(title = "Overall Ventilator",
+             plotOutput("vent", height = 500))
+    
     
 )
 
@@ -570,8 +577,33 @@ server <- function(input, output, session) {
     
     output$warning <- renderText({
       if (input$boxvar1 == "On_Ventilator" | input$boxvar2 == "On_Ventilator") {
-        "CAUTION: Incomplete data number of Recovered COVID Patients"
+        "CAUTION: Incomplete data number of COVID patients on Ventilators"
       }
+    })
+    
+    output$death <- renderPlot({
+      ggplot(data = bplot2, aes(x = Number_of_Deaths)) +
+        geom_boxplot()+
+        xlab("Deaths") +
+        ylab("") +
+        ggtitle("Distribution of Deaths") 
+    })
+    
+    output$cases <- renderPlot({
+      ggplot(data = bplot2, aes(x = Positive_Test)) +
+        geom_boxplot()+
+        xlab("Positive Tests") +
+        ylab("") +
+        ggtitle("Distribution of Positive Tests") 
+    })
+    
+    output$vent <- renderPlot({
+      ggplot(data = bplot2, aes(x = On_Ventilator)) +
+        geom_boxplot()+
+        xlab("People on Ventilators") +
+        ylab("") +
+        ggtitle("Distribution of People on Ventilators",
+                subtitle = "CAUTION: Incomplete data number of COVID patients on Ventilators") 
     })
 }
 
