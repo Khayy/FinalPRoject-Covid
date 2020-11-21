@@ -23,41 +23,10 @@ ctracking2 <- left_join(ctracking, parties, by = "state")
 
 #making the New Progressive/Republican Republican
 ctracking2$Party[ctracking2$Party == "New Progressive/Republican"] <- "Republican"
-
-# write a function to get what I need/correct it
-selection <- function(a) {
-  
-  q <- data.frame(matrix(nrow = 453, ncol = 44))
-  names(q) <- names(a)
-  
-  for (i in seq_along(1:50)) {
-    b <- a %>%
-      filter(state == state.abb[i])
-    
-    # Fix hospitalized
-    b$hospitalizedCumulative <- sum(
-      ctracking2$hospitalizedCurrently[ctracking2$state == state.abb[i]],
-                                    na.rm = T)
-    
-    b$onVentilatorCumulative <- sum(
-      ctracking2$onVentilatorCurrently[ctracking2$state == state.abb[i]],
-      na.rm = T)
-    
-    q <- rbind(q,b)
-  }
-  
-  q <- q[-c(1:453),]
-  
-  a <- q
-
-} # end function
-
-# apply function to data
-ctracking2 <- selection(ctracking2)
   
 # rearrange data for readability
 ctracking2 <- ctracking2 %>%
-    select(Month, state,Name, Party, deathIncrease, hospitalizedCumulative,
+    select(state,Name, Party, deathIncrease, hospitalizedCumulative,
            onVentilatorCumulative, negativeIncrease, positiveIncrease, recovered) %>%
   rename(
          On_Ventilator = onVentilatorCumulative,
@@ -70,11 +39,10 @@ ctracking2 <- ctracking2 %>%
 
 # Get info by state
 ctracking2 <- ctracking2 %>%
-  group_by(state, NAME, Party, Recovered) %>%
-  summarise(On_Ventilator = sum(On_Ventilator), 
+  group_by(state, NAME, Party) %>%
+  summarise( 
             Negative_Test = sum(Negative_Test),
             Positive_Test = sum(Positive_Test),
-            Hospitalized = sum(Hospitalized),
             death = sum(death)) %>%
   select(state, NAME, Party, death, Positive_Test, Negative_Test, everything())
 
@@ -86,6 +54,7 @@ states <- semi_join(states, ctracking2, by = c("STUSPS" = "state"))
 
 # combine spatial data to normal data
 mapping <- geo_join(states, ctracking2, "NAME", "NAME")
+
 
 
 #BEGIN CONSTRUCTING SHINY APP
