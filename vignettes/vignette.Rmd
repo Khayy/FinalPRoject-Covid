@@ -14,3 +14,14 @@ knitr::opts_chunk$set(
 )
 ```
 
+# Use Case
+
+# Required Packages
+
+# Data Source and Structure
+
+# EDA Inputs, Controls, and Outputs
+
+# Statistical Analysis Inputs, Controls, and Outputs
+
+# References
