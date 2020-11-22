@@ -1,5 +1,7 @@
 ---
 title: "Vignette"
+author: "Kingsley David Onyewuchi Ofoegbu, Jazelle Pilao, Doudou Shi, and Evan Steinberg"
+date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{my-vignette}
