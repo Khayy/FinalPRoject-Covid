@@ -2,10 +2,6 @@
 
 library(shiny)
 library(tidyverse)
-library(tmap)
-library(spData)
-library(spDataLarge)
-library(sf)
 library(broom)
 library(sf)
 library(leaflet)
