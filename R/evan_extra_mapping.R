@@ -3,7 +3,7 @@
 library(shiny)
 library(tidyverse)
 library(broom)
-library(sf)
+library(sf) 
 library(leaflet)
 library(viridis)
 library(RColorBrewer)
@@ -20,7 +20,7 @@ ctracking2 <- left_join(ctracking, parties, by = "state")
 #making the New Progressive/Republican Republican
 ctracking2$Party[ctracking2$Party == "New Progressive/Republican"] <- "Republican"
   
-# rearrange data for readability
+# select relevent variables
 ctracking2 <- ctracking2 %>%
     select(state,Name, Party, deathIncrease, hospitalizedCumulative,
            onVentilatorCumulative, negativeIncrease, positiveIncrease, recovered) %>%
