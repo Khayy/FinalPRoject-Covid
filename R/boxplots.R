@@ -151,7 +151,22 @@ server <- function(input, output, session) {
                         input$boxvar1 == "Month" & input$boxvar2 == "Positive_Test" |
                         input$boxvar1 == "Month" & input$boxvar2 == "On_Ventilator" |
                         input$boxvar1 == "state" & input$boxvar2 == "Positive_Test" |
-                        input$boxvar1 == "state" & input$boxvar2 == "On_Ventilator",
+                        input$boxvar1 == "state" & input$boxvar2 == "On_Ventilator" |
+                        input$boxvar1 == "Number_of_Deaths" & input$boxvar2 == "Positive_Test" |
+                        input$boxvar1 == "Number_of_Deaths" & input$boxvar2 == "On_Ventilator" |
+                        input$boxvar1 == "Positive_Test" & input$boxvar2 == "On_Ventilator" |
+                        input$boxvar1 == "Positive_Test" & input$boxvar2 == "Number_of_Deaths" |
+                        input$boxvar1 == "On_Ventilator" & input$boxvar2 == "Number_of_Deaths" |
+                        input$boxvar1 == "On_Ventilator" & input$boxvar2 == "Positive_Test" |
+                        input$boxvar2 == "Month" & input$boxvar1 == "Number_of_Deaths" |
+                        input$boxvar2 == "state" & input$boxvar1 == "Number_of_Deaths" |
+                        input$boxvar2 == "Age_Group" & input$boxvar1 == "Number_of_Deaths" |
+                        input$boxvar2 == "Condition" & input$boxvar1 == "Number_of_Deaths" |
+                        input$boxvar2 == "Sex" & input$boxvar1 == "Number_of_Deaths" |
+                        input$boxvar2 == "Month" & input$boxvar1 == "Positive_Test" |
+                        input$boxvar2 == "Month" & input$boxvar1 == "On_Ventilator" |
+                        input$boxvar2 == "state" & input$boxvar1 == "Positive_Test" |
+                        input$boxvar2 == "state" & input$boxvar1 == "On_Ventilator",
                       "Cannot create graphs for selected variables"))
         
 
@@ -197,8 +212,8 @@ server <- function(input, output, session) {
                 # take into account whether to include outliers
                 if (input$outlier == TRUE) {
                     p1 <- ggplot(a, mapping = aes(x = b,
-                                                  y = c)) +
-                        geom_boxplot()+
+                                                  y = c, fill = b)) +
+                        geom_boxplot(show.legend = F)+
                         xlab("") +
                         ylab("") +
                         coord_flip()+
@@ -206,8 +221,9 @@ server <- function(input, output, session) {
                     
                 }  else if (input$outlier == FALSE) {
                     p1 <- ggplot(a, mapping = aes(x = b,
-                                                  y = c)) +
-                        geom_boxplot(outlier.shape = NA)+
+                                                  y = c, fill = b)) +
+                      geom_boxplot(show.legend = F,
+                                   outlier.shape = NA)+
                         xlab("") +
                         ylab("") +
                         ylim(0, input$ylim) +
@@ -224,8 +240,8 @@ server <- function(input, output, session) {
           # take into account whether to include outliers
           if (input$outlier == TRUE) {
             p1 <- ggplot(a, mapping = aes(x = b,
-                                          y = c)) +
-              geom_boxplot()+
+                                          y = c, fill = b)) +
+              geom_boxplot(show.legend = F)+
               xlab("") +
               ylab("") +
               coord_flip()+
@@ -233,8 +249,9 @@ server <- function(input, output, session) {
             
           }  else if (input$outlier == FALSE) {
             p1 <- ggplot(a, mapping = aes(x = b,
-                                          y = c)) +
-              geom_boxplot(outlier.shape = NA)+
+                                          y = c, fill = b)) +
+              geom_boxplot(show.legend = F,
+                           outlier.shape = NA)+
               xlab("") +
               ylab("") +
               ylim(0, input$ylim) +
@@ -255,8 +272,8 @@ server <- function(input, output, session) {
           # take into account whether to include outliers
           if (input$outlier == TRUE) {
             p1 <- ggplot(a, mapping = aes(x = b,
-                                          y = c)) +
-              geom_boxplot() +
+                                          y = c, fill = b)) +
+              geom_boxplot(show.legend = F)+
               xlab("") +
               ylab("") +
               coord_flip()+
@@ -264,8 +281,9 @@ server <- function(input, output, session) {
           } 
           else if (input$outlier == FALSE) {
             p1 <- ggplot(a, mapping = aes(x = b,
-                                          y = c)) +
-              geom_boxplot(outlier.shape = NA) +
+                                          y = c, fill = b)) +
+              geom_boxplot(show.legend = F,
+                           outlier.shape = NA)+
               xlab("") +
               ylab("") +
               ylim(0, input$ylim) +
@@ -300,8 +318,8 @@ server <- function(input, output, session) {
                 # take into account whether to include outliers
                 if (input$outlier == TRUE) {
                     p1 <- ggplot(a, mapping = aes(x = b,
-                                                  y = c)) +
-                        geom_boxplot()+
+                                                  y = c, fill = b)) +
+                      geom_boxplot(show.legend = F)+
                         xlab("") +
                         ylab("") +
                         coord_flip()+
@@ -309,8 +327,9 @@ server <- function(input, output, session) {
                     
                 } else if (input$outlier == FALSE) {
                     p1 <- ggplot(a, mapping = aes(x = b,
-                                                  y = c)) +
-                        geom_boxplot(outlier.shape = NA)+
+                                                  y = c, fill = b)) +
+                      geom_boxplot(show.legend = F,
+                                   outlier.shape = NA)+
                         xlab("") +
                         ylab("") +
                         ylim(0, input$ylim) +
@@ -343,8 +362,8 @@ server <- function(input, output, session) {
                # take into account whether to include outliers
                if (input$outlier == TRUE) {
                    p1 <- ggplot(a, mapping = aes(x = b,
-                                                 y = c)) +
-                       geom_boxplot()+
+                                                 y = c, fill = b)) +
+                     geom_boxplot(show.legend = F)+
                        xlab("") +
                        ylab("") +
                        coord_flip()+
@@ -352,8 +371,9 @@ server <- function(input, output, session) {
                } 
                else if (input$outlier == FALSE) {
                    p1 <- ggplot(a, mapping = aes(x = b,
-                                                 y = c)) +
-                       geom_boxplot(outlier.shape = NA)+
+                                                 y = c, fill = b)) +
+                     geom_boxplot(show.legend = F,
+                                  outlier.shape = NA)+
                        xlab("") +
                        ylab("") +
                        ylim(0, input$ylim) +
@@ -400,7 +420,22 @@ server <- function(input, output, session) {
                         input$boxvar1 == "Month" & input$boxvar2 == "Positive_Test" |
                         input$boxvar1 == "Month" & input$boxvar2 == "On_Ventilator" |
                         input$boxvar1 == "state" & input$boxvar2 == "Positive_Test" |
-                        input$boxvar1 == "state" & input$boxvar2 == "On_Ventilator",
+                        input$boxvar1 == "state" & input$boxvar2 == "On_Ventilator" |
+                        input$boxvar1 == "Number_of_Deaths" & input$boxvar2 == "Positive_Test" |
+                        input$boxvar1 == "Number_of_Deaths" & input$boxvar2 == "On_Ventilator" |
+                        input$boxvar1 == "Positive_Test" & input$boxvar2 == "On_Ventilator" |
+                        input$boxvar1 == "Positive_Test" & input$boxvar2 == "Number_of_Deaths" |
+                        input$boxvar1 == "On_Ventilator" & input$boxvar2 == "Number_of_Deaths" |
+                        input$boxvar1 == "On_Ventilator" & input$boxvar2 == "Positive_Test" |
+                        input$boxvar2 == "Month" & input$boxvar1 == "Number_of_Deaths" |
+                        input$boxvar2 == "state" & input$boxvar1 == "Number_of_Deaths" |
+                        input$boxvar2 == "Age_Group" & input$boxvar1 == "Number_of_Deaths" |
+                        input$boxvar2 == "Condition" & input$boxvar1 == "Number_of_Deaths" |
+                        input$boxvar2 == "Sex" & input$boxvar1 == "Number_of_Deaths" |
+                        input$boxvar2 == "Month" & input$boxvar1 == "Positive_Test" |
+                        input$boxvar2 == "Month" & input$boxvar1 == "On_Ventilator" |
+                        input$boxvar2 == "state" & input$boxvar1 == "Positive_Test" |
+                        input$boxvar2 == "state" & input$boxvar1 == "On_Ventilator",
                       "Cannot create graphs for selected variables"))
             
         if (input$boxvar1 == "Sex" | input$boxvar2 == "Sex") {
