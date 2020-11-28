@@ -22,8 +22,16 @@ knitr::opts_chunk$set(
 
 # Data Source and Structure
 
+One of the data sources used in this project comes from The COVID Tracking Project. This project comprised from volunteers from *The Atlantic*. These volunteers have the goal of collecting and publishing data related to the coronavirus pandemic specifically in the United States. This data source contains information regarding number of deaths, number of cases, number of tests, and more. Structurally, this data collects information for each of the 50 U.S. states, the District of Columbia, and 5 U.S. territories. Each observation is in terms of days. What this means is that, each day, 56 new observations get added to the data set representing the COVID data from each of the 56 states/territories tracked. This means that there are a total of 14,730 observations with the first data being reported on January 22 (Our Data, 2020).
+
+Another data source used comes from Ballotpedia. This source gives information on the political party of each of the state governors, including the governors of 5 U.S. territories. In terms of struture, this data has one row for each state/U.S. territory. In this row, there is the name of the state and the party the governor belongs to (Partisan Composition of Governors, 2020).
+
 # EDA Inputs, Controls, and Outputs
 
 # Statistical Analysis Inputs, Controls, and Outputs
 
 # References
+Our Data. The COVID Tracking Project. (2020). https://covidtracking.com/data/download.
+
+Partisan Composition of Governors. Ballotpedia (2020). https://ballotpedia.org/Partisan_composition_of_governors
+
