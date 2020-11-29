@@ -80,17 +80,19 @@ server <- function(input, output) {
    age_gender%>%
      group_by(!!input$groups_1.1)%>%
      ggplot(aes(!!input$groups_1.1, Deaths, fill = !!input$groups_1.1))+
-     geom_boxplot()+
+     geom_boxplot(show.legend = FALSE)+
        scale_y_log10()+
-       ylab("Log of COVID-19 Deaths")
+       ylab("Log of COVID-19 Deaths")+
+       theme(axis.text.x = element_text(angle = 75, vjust = 0.5, hjust = 1))
      
      }else if (!!input$type_1 == "Two-way"){
      age_gender%>%
        group_by(!!input$groups_1.1, !!input$groups_1.2)%>%
        ggplot(aes(!!input$groups_1.1, Deaths, fill = !!input$groups_1.2))+
-       geom_boxplot()+
+       geom_boxplot(show.legend = FALSE)+
          scale_y_log10()+
-         ylab("Log of COVID-19 Deaths")
+         ylab("Log of COVID-19 Deaths")+
+         theme(axis.text.x = element_text(angle = 75, vjust = 0.5, hjust = 1))
        }
   
  })
@@ -100,17 +102,19 @@ server <- function(input, output) {
      COVID_Deaths%>%
        group_by(!!input$groups_2.1)%>%
        ggplot(aes(!!input$groups_2.1, Deaths, fill = !!input$groups_2.1))+
-       geom_boxplot()+ 
+       geom_boxplot(show.legend = FALSE)+ 
        scale_y_log10()+
-       ylab("Log of COVID-19 Deaths")
+       ylab("Log of COVID-19 Deaths")+
+       theme(axis.text.x = element_text(angle = 75, vjust = 0.5, hjust = 1))
      
    }else if (!!input$type_2 == "Two-way"){
      COVID_Deaths%>%
        group_by(!!input$groups_2.1, !!input$groups_2.2)%>%
        ggplot(aes(!!input$groups_2.1, Deaths, fill = !!input$groups_2.2))+
-       geom_boxplot()+ 
+       geom_boxplot(show.legend = FALSE)+ 
        scale_y_log10() +
-       ylab("Log of COVID-19 Deaths")
+       ylab("Log of COVID-19 Deaths")+
+       theme(axis.text.x = element_text(angle = 75, vjust = 0.5, hjust = 1))
      }
    
  })
