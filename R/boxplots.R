@@ -103,12 +103,7 @@ ui <- fluidPage(
                checkboxInput("outlier", "Do you want to include outliers (Only 
                                         Applicable when selecting one categorical variable
                                         and one numeric variable)?", 
-                             value = TRUE),
-               numericInput("ylim", "Please select an uper limit for the graph scale 
-                                     (ONLY APPLICABLE WHEN NOT INCLUDING OUTLIERS). 
-                                     If graph is hard to understand, leave this 
-                                     box blank",
-                           min = 100, max = 1000000000, value = 20000, step = 1)
+                             value = TRUE)
                ),# end Column
         column(4,
                textOutput("warning"))
@@ -222,11 +217,10 @@ server <- function(input, output, session) {
                 }  else if (input$outlier == FALSE) {
                     p1 <- ggplot(a, mapping = aes(x = b,
                                                   y = c, fill = b)) +
-                      geom_boxplot(show.legend = F,
-                                   outlier.shape = NA)+
+                      geom_boxplot(show.legend = F)+
                         xlab("") +
                         ylab("") +
-                        ylim(0, input$ylim) +
+                        scale_y_log10() +
                         coord_flip()+
                         theme_bw()
                 }
@@ -250,11 +244,10 @@ server <- function(input, output, session) {
           }  else if (input$outlier == FALSE) {
             p1 <- ggplot(a, mapping = aes(x = b,
                                           y = c, fill = b)) +
-              geom_boxplot(show.legend = F,
-                           outlier.shape = NA)+
+              geom_boxplot(show.legend = F)+
               xlab("") +
               ylab("") +
-              ylim(0, input$ylim) +
+              scale_y_log10() +
               coord_flip()+
               theme_bw()
           }
@@ -282,11 +275,10 @@ server <- function(input, output, session) {
           else if (input$outlier == FALSE) {
             p1 <- ggplot(a, mapping = aes(x = b,
                                           y = c, fill = b)) +
-              geom_boxplot(show.legend = F,
-                           outlier.shape = NA)+
+              geom_boxplot(show.legend = F)+
               xlab("") +
               ylab("") +
-              ylim(0, input$ylim) +
+              scale_y_log10() +
               coord_flip()+
               theme_bw()
           }
@@ -326,15 +318,14 @@ server <- function(input, output, session) {
                         theme_bw()
                     
                 } else if (input$outlier == FALSE) {
-                    p1 <- ggplot(a, mapping = aes(x = b,
-                                                  y = c, fill = b)) +
-                      geom_boxplot(show.legend = F,
-                                   outlier.shape = NA)+
-                        xlab("") +
-                        ylab("") +
-                        ylim(0, input$ylim) +
-                        coord_flip()+
-                        theme_bw()
+                  p1 <- ggplot(a, mapping = aes(x = b,
+                                                y = c, fill = b)) +
+                    geom_boxplot(show.legend = F)+
+                    xlab("") +
+                    ylab("") +
+                    scale_y_log10() +
+                    coord_flip()+
+                    theme_bw()
                 }
             } # end age conditions
             if (input$boxvar1 == "Condition" | input$boxvar2 == "Condition") {
@@ -370,15 +361,14 @@ server <- function(input, output, session) {
                        theme_bw()
                } 
                else if (input$outlier == FALSE) {
-                   p1 <- ggplot(a, mapping = aes(x = b,
-                                                 y = c, fill = b)) +
-                     geom_boxplot(show.legend = F,
-                                  outlier.shape = NA)+
-                       xlab("") +
-                       ylab("") +
-                       ylim(0, input$ylim) +
-                       coord_flip()+
-                       theme_bw()
+                 p1 <- ggplot(a, mapping = aes(x = b,
+                                               y = c, fill = b)) +
+                   geom_boxplot(show.legend = F)+
+                   xlab("") +
+                   ylab("") +
+                   scale_y_log10() +
+                   coord_flip()+
+                   theme_bw()
                }
            } # end Codition workings
         
@@ -618,7 +608,7 @@ server <- function(input, output, session) {
     
     output$death <- renderPlot({
       ggplot(data = bplot2, aes(x = Number_of_Deaths)) +
-        geom_boxplot()+
+        geom_histogram()+
         xlab("Deaths") +
         ylab("") +
         ggtitle("Distribution of Deaths") 
@@ -626,7 +616,7 @@ server <- function(input, output, session) {
     
     output$cases <- renderPlot({
       ggplot(data = bplot2, aes(x = Positive_Test)) +
-        geom_boxplot()+
+        geom_histogram()+
         xlab("Positive Tests") +
         ylab("") +
         ggtitle("Distribution of Positive Tests") 
@@ -634,7 +624,7 @@ server <- function(input, output, session) {
     
     output$vent <- renderPlot({
       ggplot(data = bplot2, aes(x = On_Ventilator)) +
-        geom_boxplot()+
+        geom_histogram()+
         xlab("People on Ventilators") +
         ylab("") +
         ggtitle("Distribution of People on Ventilators",
