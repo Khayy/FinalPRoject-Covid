@@ -42,6 +42,9 @@ ctracking2 <- ctracking2 %>%
             death = sum(death)) %>%
   select(state, NAME, Party, death, Positive_Test, Negative_Test, everything())
 
+# Get per capita
+
+
 #get the state spacial data
 states <- states()
 
@@ -60,6 +63,7 @@ ui <- fluidPage(
         sidebarPanel(
             varSelectInput("mapvar", "Please Select a Variable to Map", data = ctracking2,
                            selected = "death"),
+            checkboxInput("relative", "map unit per 100,000", value = FALSE),
             textOutput("intro"),
             tableOutput("map_anova")
         ), #end sidebarPanel
@@ -83,123 +87,125 @@ server <- function(input, output, session) {
       addProviderTiles("CartoDB.Positron") %>%
       setView(-98.483330, 38.712046, zoom = 4)
     
-    if (input$mapvar == "death") {
-      # Color palette
-      pal <- colorNumeric("Reds", domain=mapping$death)
-      
-      # Setting up the pop up text
-      popup_sb <- paste0(mapping$NAME,": ", mapping$death)
-      
-      leaf %>%
-        addPolygons(data = mapping, 
-                    fillColor = ~pal(mapping$death), 
-                    fillOpacity = 0.7, 
-                    weight = 0.2, 
-                    smoothFactor = 0.2, 
-                    popup = ~popup_sb) %>%
-        addLegend(pal = pal, 
-                  values = mapping$death, 
-                  position = "bottomright")
-      
-    } else if (input$mapvar == "Hospitalized") {
-      
-      # Color palette
-      pal <- colorNumeric("Reds", domain=mapping$Hospitalized)
-      
-      # Setting up the pop up text
-      popup_sb <- paste0(mapping$NAME,": ", mapping$Hospitalized)
-      
-      leaf %>%
-        addPolygons(data = mapping , 
-                    fillColor = ~pal(mapping$Hospitalized), 
-                    fillOpacity = 0.7, 
-                    weight = 0.2, 
-                    smoothFactor = 0.2, 
-                    popup = ~popup_sb) %>%
-        addLegend(pal = pal, 
-                  values = mapping$Hospitalized, 
-                  position = "bottomright")
-      
-    } else if (input$mapvar == "On_Ventilator") {
-      
-      # Color palette
-      pal <- colorNumeric("Reds", domain=mapping$On_Ventilator)
-      
-      # Setting up the pop up text
-      popup_sb <- paste0(mapping$NAME,": ", mapping$On_Ventilator)
-      
-      leaf %>%
-        addPolygons(data = mapping , 
-                    fillColor = ~pal(mapping$On_Ventilator), 
-                    fillOpacity = 0.7, 
-                    weight = 0.2, 
-                    smoothFactor = 0.2, 
-                    popup = ~popup_sb) %>%
-        addLegend(pal = pal, 
-                  values = mapping$On_Ventilator, 
-                  position = "bottomright")
-      
-    } else if (input$mapvar == "Negative_Test") {
-      
-      # Color palette
-      pal <- colorNumeric("Reds", domain=mapping$Negative_Test)
-      
-      # Setting up the pop up text
-      popup_sb <- paste0(mapping$NAME,": ", mapping$Negative_Test)
-      
-      leaf %>%
-        addPolygons(data = mapping , 
-                    fillColor = ~pal(mapping$Negative_Test), 
-                    fillOpacity = 0.7, 
-                    weight = 0.2, 
-                    smoothFactor = 0.2, 
-                    popup = ~popup_sb) %>%
-        addLegend(pal = pal, 
-                  values = mapping$Negative_Test, 
-                  position = "bottomright")
-      
-    } else if (input$mapvar == "Positive_Test") {
-      
-      # Color palette
-      pal <- colorNumeric("Reds", domain=mapping$Positive_Test)
-      
-      # Setting up the pop up text
-      popup_sb <- paste0(mapping$NAME,": ", mapping$Positive_Test)
-      
-      leaf %>%
-        addPolygons(data = mapping , 
-                    fillColor = ~pal(mapping$Positive_Test), 
-                    fillOpacity = 0.7, 
-                    weight = 0.2, 
-                    smoothFactor = 0.2, 
-                    popup = ~popup_sb) %>%
-        addLegend(pal = pal, 
-                  values = mapping$Positive_Test, 
-                  position = "bottomright")
-      
-    } else if (input$mapvar == "Recovered") {
-      
-      # Color palette
-      pal <- colorNumeric("Reds", domain=mapping$Recovered)
-      
-      # Setting up the pop up text
-      popup_sb <- paste0(mapping$NAME,": ", mapping$Recovered)
-      
-      leaf %>%
-        addPolygons(data = mapping , 
-                    fillColor = ~pal(mapping$Recovered), 
-                    fillOpacity = 0.7, 
-                    weight = 0.2, 
-                    smoothFactor = 0.2, 
-                    popup = ~popup_sb) %>%
-        addLegend(pal = pal, 
-                  values = mapping$Recovered, 
-                  position = "bottomright")
+    if (input$relative == TRUE) {
       
     }
-    
-    
-      
+    else {
+      if (input$mapvar == "death") {
+        # Color palette
+        pal <- colorNumeric("Reds", domain=mapping$death)
+        
+        # Setting up the pop up text
+        popup_sb <- paste0(mapping$NAME,": ", mapping$death)
+        
+        leaf %>%
+          addPolygons(data = mapping, 
+                      fillColor = ~pal(mapping$death), 
+                      fillOpacity = 0.7, 
+                      weight = 0.2, 
+                      smoothFactor = 0.2, 
+                      popup = ~popup_sb) %>%
+          addLegend(pal = pal, 
+                    values = mapping$death, 
+                    position = "bottomright")
+        
+      } else if (input$mapvar == "Hospitalized") {
+        
+        # Color palette
+        pal <- colorNumeric("Reds", domain=mapping$Hospitalized)
+        
+        # Setting up the pop up text
+        popup_sb <- paste0(mapping$NAME,": ", mapping$Hospitalized)
+        
+        leaf %>%
+          addPolygons(data = mapping , 
+                      fillColor = ~pal(mapping$Hospitalized), 
+                      fillOpacity = 0.7, 
+                      weight = 0.2, 
+                      smoothFactor = 0.2, 
+                      popup = ~popup_sb) %>%
+          addLegend(pal = pal, 
+                    values = mapping$Hospitalized, 
+                    position = "bottomright")
+        
+      } else if (input$mapvar == "On_Ventilator") {
+        
+        # Color palette
+        pal <- colorNumeric("Reds", domain=mapping$On_Ventilator)
+        
+        # Setting up the pop up text
+        popup_sb <- paste0(mapping$NAME,": ", mapping$On_Ventilator)
+        
+        leaf %>%
+          addPolygons(data = mapping , 
+                      fillColor = ~pal(mapping$On_Ventilator), 
+                      fillOpacity = 0.7, 
+                      weight = 0.2, 
+                      smoothFactor = 0.2, 
+                      popup = ~popup_sb) %>%
+          addLegend(pal = pal, 
+                    values = mapping$On_Ventilator, 
+                    position = "bottomright")
+        
+      } else if (input$mapvar == "Negative_Test") {
+        
+        # Color palette
+        pal <- colorNumeric("Reds", domain=mapping$Negative_Test)
+        
+        # Setting up the pop up text
+        popup_sb <- paste0(mapping$NAME,": ", mapping$Negative_Test)
+        
+        leaf %>%
+          addPolygons(data = mapping , 
+                      fillColor = ~pal(mapping$Negative_Test), 
+                      fillOpacity = 0.7, 
+                      weight = 0.2, 
+                      smoothFactor = 0.2, 
+                      popup = ~popup_sb) %>%
+          addLegend(pal = pal, 
+                    values = mapping$Negative_Test, 
+                    position = "bottomright")
+        
+      } else if (input$mapvar == "Positive_Test") {
+        
+        # Color palette
+        pal <- colorNumeric("Reds", domain=mapping$Positive_Test)
+        
+        # Setting up the pop up text
+        popup_sb <- paste0(mapping$NAME,": ", mapping$Positive_Test)
+        
+        leaf %>%
+          addPolygons(data = mapping , 
+                      fillColor = ~pal(mapping$Positive_Test), 
+                      fillOpacity = 0.7, 
+                      weight = 0.2, 
+                      smoothFactor = 0.2, 
+                      popup = ~popup_sb) %>%
+          addLegend(pal = pal, 
+                    values = mapping$Positive_Test, 
+                    position = "bottomright")
+        
+      } else if (input$mapvar == "Recovered") {
+        
+        # Color palette
+        pal <- colorNumeric("Reds", domain=mapping$Recovered)
+        
+        # Setting up the pop up text
+        popup_sb <- paste0(mapping$NAME,": ", mapping$Recovered)
+        
+        leaf %>%
+          addPolygons(data = mapping , 
+                      fillColor = ~pal(mapping$Recovered), 
+                      fillOpacity = 0.7, 
+                      weight = 0.2, 
+                      smoothFactor = 0.2, 
+                      popup = ~popup_sb) %>%
+          addLegend(pal = pal, 
+                    values = mapping$Recovered, 
+                    position = "bottomright")
+        
+      }
+    }
      
   }) # End renderLeaflet
   
