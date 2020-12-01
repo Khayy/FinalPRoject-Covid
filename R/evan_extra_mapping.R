@@ -6,9 +6,7 @@ library(broom)
 library(sf) 
 library(leaflet)
 library(viridis)
-library(RColorBrewer)
 library(tigris)
-
 
 # Load Data
 parties1 <- read_rds("../data/political_parties_of_states.rds")
@@ -45,7 +43,7 @@ ctracking2 <- ctracking2 %>%
 
 # Get per capita
 
-ctracking2 <- left_join(ctracking2, pop, by = c("NAME" = "NAME"))
+ctracking2 <- left_join(ctracking2, pop1, by = c("NAME" = "NAME"))
 ctracking2 <- ctracking2 %>%
   rename(Population = POPESTIMATE2019)
 
@@ -64,7 +62,7 @@ ctracking4 <- ctracking2 %>%
          -negative_test_per_capita, - Population)
 
 #get the state spacial data
-states <- states()
+states <- states(cb = T)
 
 # remove observations in state that are not in ctracking2
 states <- semi_join(states, ctracking2, by = c("STUSPS" = "state"))
