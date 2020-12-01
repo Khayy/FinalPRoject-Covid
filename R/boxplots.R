@@ -4,17 +4,17 @@ library(broom)
 
 
 # Load Data
-death <- read_rds("../data/COVID_Deaths.rds")
-ctracking <- read_rds("../data/ctracking.rds")
-age <- read_rds("../data/age_gender.rds")
+death11 <- read_rds("../data/COVID_Deaths.rds")
+ctracking11 <- read_rds("../data/ctracking.rds")
+age1 <- read_rds("../data/age_gender.rds")
 
 # filter death data
-death1 <- death %>%
+death1 <- death11 %>%
   filter(`Age Group` != "All Ages" & `Age Group` != "Not stated" &
            `Condition Group` != "COVID-19" & Condition != "COVID-19")
 
 # group the ctracking data
-ctracking1 <- ctracking %>%
+ctracking1 <- ctracking11 %>%
   select(state, positiveIncrease, onVentilatorCurrently) %>%
   group_by(state) %>%
   summarise(Positive_Test = sum(positiveIncrease, na.rm = T),
@@ -31,7 +31,7 @@ bplot <- bplot %>%
            Number_of_Deaths = `Number of COVID-19 Deaths`,
            Name = NAME)
 
-b <- ctracking %>%
+b <- ctracking11 %>%
     select(state, deathIncrease, onVentilatorCumulative, positiveIncrease) %>%
     filter(state != "AS", state != "GU", state != "MP", state != "VI")
 names(b)[3] <- "Number_of_Deaths"
@@ -39,12 +39,12 @@ names(b)[4] <- "On_Ventilator"
 names(b)[5] <- "Positive_Test"
 
 # group age by sex
-age2 <- age %>%
+age2 <- age1 %>%
   group_by(State, Sex) %>%
   summarize(Deaths = sum(Deaths, na.rm = T))
 
 # combine original datasets to get distribution for positive tests and ventilators
-bplot2 <- inner_join(ctracking, death, by = c("state" = "abb"))
+bplot2 <- inner_join(ctracking11, death11, by = c("state" = "abb"))
 bplot2 <- inner_join(bplot2, age2, by = c("NAME" = "State"))
 
 bplot2 <- bplot2 %>%

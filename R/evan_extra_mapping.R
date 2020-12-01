@@ -11,12 +11,12 @@ library(tigris)
 
 
 # Load Data
-parties <- read_rds("../data/political_parties_of_states.rds")
-ctracking <- read_rds("../data/ctracking.rds")
-pop <- read_rds("../data/pop.rds")
+parties1 <- read_rds("../data/political_parties_of_states.rds")
+ctracking1 <- read_rds("../data/ctracking.rds")
+pop1 <- read_rds("../data/pop.rds")
 
 # combine data sets
-ctracking2 <- left_join(ctracking, parties, by = "state")
+ctracking2 <- left_join(ctracking1, parties1, by = "state")
 
 #making the New Progressive/Republican Republican
 ctracking2$Party[ctracking2$Party == "New Progressive/Republican"] <- "Republican"
