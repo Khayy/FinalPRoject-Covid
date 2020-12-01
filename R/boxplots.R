@@ -100,10 +100,9 @@ ui <- fluidPage(
                            selected = "Number_of_Deaths")
         ), # End column
         column(4,
-               checkboxInput("outlier", "Do you want to include outliers (Only 
-                                        Applicable when selecting one categorical variable
-                                        and one numeric variable)?", 
-                             value = TRUE)
+               checkboxInput("outlier", "Perform a log transformation (Only 
+                                        Applicable for the boxplot)?", 
+                             value = FALSE)
                ),# end Column
         column(4,
                textOutput("warning"))
@@ -205,7 +204,7 @@ server <- function(input, output, session) {
               }
                 
                 # take into account whether to include outliers
-                if (input$outlier == TRUE) {
+                if (input$outlier == FALSE) {
                     p1 <- ggplot(a, mapping = aes(x = b,
                                                   y = c, fill = b)) +
                         geom_boxplot(show.legend = F)+
@@ -214,7 +213,7 @@ server <- function(input, output, session) {
                         coord_flip()+
                         theme_bw()
                     
-                }  else if (input$outlier == FALSE) {
+                }  else if (input$outlier == TRUE) {
                     p1 <- ggplot(a, mapping = aes(x = b,
                                                   y = c, fill = b)) +
                       geom_boxplot(show.legend = F)+
@@ -232,7 +231,7 @@ server <- function(input, output, session) {
           names(a)[3] <- "c"
           
           # take into account whether to include outliers
-          if (input$outlier == TRUE) {
+          if (input$outlier == FALSE) {
             p1 <- ggplot(a, mapping = aes(x = b,
                                           y = c, fill = b)) +
               geom_boxplot(show.legend = F)+
@@ -241,7 +240,7 @@ server <- function(input, output, session) {
               coord_flip()+
               theme_bw()
             
-          }  else if (input$outlier == FALSE) {
+          }  else if (input$outlier == TRUE) {
             p1 <- ggplot(a, mapping = aes(x = b,
                                           y = c, fill = b)) +
               geom_boxplot(show.legend = F)+
@@ -261,9 +260,12 @@ server <- function(input, output, session) {
           a$b <- as.character(a$b)
           a$b <- factor(a$b, levels = c("Feb",  "Mar",  "Apr",  "May",
                                         "Jun",  "Jul",  "Aug",  "Sept", "Oct"))
+
+          a <- a %>%
+            filter(!is.na(b))
           
           # take into account whether to include outliers
-          if (input$outlier == TRUE) {
+          if (input$outlier == FALSE) {
             p1 <- ggplot(a, mapping = aes(x = b,
                                           y = c, fill = b)) +
               geom_boxplot(show.legend = F)+
@@ -272,7 +274,7 @@ server <- function(input, output, session) {
               coord_flip()+
               theme_bw()
           } 
-          else if (input$outlier == FALSE) {
+          else if (input$outlier == TRUE) {
             p1 <- ggplot(a, mapping = aes(x = b,
                                           y = c, fill = b)) +
               geom_boxplot(show.legend = F)+
@@ -308,7 +310,7 @@ server <- function(input, output, session) {
                 }
                 
                 # take into account whether to include outliers
-                if (input$outlier == TRUE) {
+                if (input$outlier == FALSE) {
                     p1 <- ggplot(a, mapping = aes(x = b,
                                                   y = c, fill = b)) +
                       geom_boxplot(show.legend = F)+
@@ -317,7 +319,7 @@ server <- function(input, output, session) {
                         coord_flip()+
                         theme_bw()
                     
-                } else if (input$outlier == FALSE) {
+                } else if (input$outlier == TRUE) {
                   p1 <- ggplot(a, mapping = aes(x = b,
                                                 y = c, fill = b)) +
                     geom_boxplot(show.legend = F)+
@@ -351,7 +353,7 @@ server <- function(input, output, session) {
                  }
                }
                # take into account whether to include outliers
-               if (input$outlier == TRUE) {
+               if (input$outlier == FALSE) {
                    p1 <- ggplot(a, mapping = aes(x = b,
                                                  y = c, fill = b)) +
                      geom_boxplot(show.legend = F)+
@@ -360,7 +362,7 @@ server <- function(input, output, session) {
                        coord_flip()+
                        theme_bw()
                } 
-               else if (input$outlier == FALSE) {
+               else if (input$outlier == TRUE) {
                  p1 <- ggplot(a, mapping = aes(x = b,
                                                y = c, fill = b)) +
                    geom_boxplot(show.legend = F)+
