@@ -181,6 +181,17 @@ server <- function(input, output, session) {
             select(Month, input$boxvar1, input$boxvar2)
         }
         
+        if (input$boxvar1 == "state" & input$boxvar2 == "On_Ventilator" |
+            input$boxvar2 == "state" & input$boxvar1 == "On_Ventilator") {
+          
+          a2 <- a %>%
+            group_by(state) %>%
+            summarise(sum = sum(On_Ventilator)) %>%
+            filter(sum > 0)
+          
+          a <- semi_join(a, a2, by = "state")
+        }
+        
 
             if (input$boxvar1 == "state" | input$boxvar2 == "state") {
                 # Make it so that state can be either input
@@ -445,6 +456,17 @@ server <- function(input, output, session) {
           a <- bplot2 %>%
             select(Month, input$boxvar1, input$boxvar2)
         }
+        
+        if (input$boxvar1 == "state" & input$boxvar2 == "On_Ventilator" |
+            input$boxvar2 == "state" & input$boxvar1 == "On_Ventilator") {
+          
+          a2 <- a %>%
+            group_by(state) %>%
+            summarise(sum = sum(On_Ventilator)) %>%
+            filter(sum > 0)
+          
+          a <- semi_join(a, a2, by = "state")
+        }
             
             if (input$boxvar1 == "state" | input$boxvar2 == "state") {
                 # Make it so that state can be either input
@@ -465,6 +487,7 @@ server <- function(input, output, session) {
                   names(a)[2] <- "c"
                 }
               }
+              
                 a <- a %>%
                     group_by(b) %>%
                     summarize(sum(c, na.rm = T))
