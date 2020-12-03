@@ -170,7 +170,7 @@ server <- function(input, output, session) {
         }
         else if (input$boxvar1 == "Number_of_Deaths" | input$boxvar2 == "Number_of_Deaths") {
           if (input$boxvar1 == "Month" | input$boxvar2 == "Month") {
-            a <- bplot2 %>%
+            a <- b %>%
               select(Month, input$boxvar1, input$boxvar2)
           } else {
             a <- bplot %>%
@@ -180,7 +180,6 @@ server <- function(input, output, session) {
           a <- bplot2 %>%
             select(Month, input$boxvar1, input$boxvar2)
         }
-        
         
 
             if (input$boxvar1 == "state" | input$boxvar2 == "state") {
