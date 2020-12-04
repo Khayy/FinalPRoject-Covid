@@ -8,6 +8,7 @@ library(leaflet)
 library(viridis)
 library(tigris)
 
+
 # Load Data
 parties1 <- read_rds("../data/political_parties_of_states.rds")
 ctracking1 <- read_rds("../data/ctracking.rds")
