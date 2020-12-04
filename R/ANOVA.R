@@ -9,7 +9,7 @@ age_gender <- read_rds("../data/age_gender.rds")
 age_gender%>%
   mutate("Not Applicable" = " ") -> age_gender
 
-COVID_Deaths%>%
+death %>%
   rename(State = NAME)%>%
   rename(Deaths = "Number of COVID-19 Deaths")%>%
   mutate("Not Applicable" = " ")%>%

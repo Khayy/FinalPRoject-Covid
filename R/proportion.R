@@ -4,13 +4,13 @@ library(broom)
 
  
 # Load Data
-death <- read_rds("../data/COVID_Deaths.rds") 
-ctracking <- read_rds("../data/ctracking.rds")
+death1 <- read_rds("../data/COVID_Deaths.rds") 
+ctracking1 <- read_rds("../data/ctracking.rds")
 age <- read_rds("../data/age_gender.rds") 
  
  
 # tidy each table
-death_1 <- death %>% 
+death_1 <- death1 %>% 
    select(abb,NAME,population,`Condition Group`,`Age Group`,`Number of COVID-19 Deaths`) %>% 
    rename(deaths = "Number of COVID-19 Deaths",
           Age_Group = `Age Group`,
