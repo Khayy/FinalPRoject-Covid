@@ -55,7 +55,7 @@ ui <- fluidPage(
                 "Do you want to know which dimension of death in the United States?",
                 choices=dimension), 
    selectInput("NAME","Which state do you want to check?",choices = unique(as.factor(combine$NAME))),
-   selectInput("Age_Group","Which age group do you want to check?",choices = unique(as.factor(combine$Age_Group)),,selected = "85+"),
+   selectInput("Age_Group","Which age group do you want to check?",choices = unique(as.factor(combine$Age_Group)), selected = "85+"),
    selectInput("Sex","Which Sex do you want to check?",choices = unique(as.factor(combine$Sex))),
    plotOutput("plot1"),
    plotOutput("plot2"),
