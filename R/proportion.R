@@ -126,7 +126,6 @@ server <- function(input, output,session) {
   })
   
   
-  
 
   output$plot4  <- renderPlot({
      if(!!input$status == "Age_Group" ){
