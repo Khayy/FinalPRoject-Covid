@@ -8,7 +8,7 @@ ctracking <- read_rds("../data/ctracking.rds")
 age_gender <- read_rds("../data/age_gender.rds")
 pop <- read_rds("../data/pop.rds")
 
-age_gender%>%.  ###data frame cleaning updates 
+age_gender%>%  ###data frame cleaning updates 
   mutate("Not Applicable" = " ") %>%
   filter(`Age group` != c("24-34 years")) %>%
   filter(`Age group` != c("35-44 years")) %>%
