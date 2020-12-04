@@ -8,15 +8,20 @@ ctracking <- read_rds("../data/ctracking.rds")
 age_gender <- read_rds("../data/age_gender.rds")
 pop <- read_rds("../data/pop.rds")
 
-age_gender%>%
-  mutate("Not Applicable" = " ") -> age_gender
+age_gender%>%.  ###data frame cleaning updates 
+  mutate("Not Applicable" = " ") %>%
+  filter(`Age group` != c("24-34 years")) %>%
+  filter(`Age group` != c("35-44 years")) %>%
+  filter(`Age group` != c("45-54 years")) %>%
+  filter(`Age group` != c("55-64 years")) -> age_gender
 
-death %>%
+COVID_Deaths%>%       ###data frame cleaning updates 
   rename(State = NAME)%>%
   rename(Deaths = "Number of COVID-19 Deaths")%>%
   mutate("Not Applicable" = " ")%>%
-  select(State, "Condition Group", "Condition", "Age Group", Deaths, "Not Applicable")-> COVID_Deaths
-
+  select(State, "Condition Group", "Condition", "Age Group", Deaths, "Not Applicable")%>%
+  filter(`Age Group` != "Not stated") %>%
+  filter(`Age Group` != "All Ages")->COVID_Deaths
 
 
 
