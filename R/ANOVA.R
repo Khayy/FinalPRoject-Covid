@@ -21,7 +21,8 @@ COVID_Deaths%>%       ###data frame cleaning updates
   mutate("Not Applicable" = " ")%>%
   select(State, "Condition Group", "Condition", "Age Group", Deaths, "Not Applicable")%>%
   filter(`Age Group` != "Not stated") %>%
-  filter(`Age Group` != "All Ages")->COVID_Deaths
+  filter(`Age Group` != "All Ages") %>%
+  filter(State != "UStotal") -> COVID_Deaths
 
 
 
