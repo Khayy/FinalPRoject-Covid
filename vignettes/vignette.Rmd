@@ -21,6 +21,19 @@ knitr::opts_chunk$set(
 
 # Required Packages
 
+**Required packages:**<br />
+shiny (version 1.5.0) <br />
+shinythemes (version 1.1.2)<br />
+fresh (version 0.2.0)<br />
+tidyverse (version 1.3.0)<br />
+broom (version 0.7.0)<br />
+sf (version 0.9-6)<br />
+tigris (version 1.0)<br />
+leaflet (version 2.0.3)<br />
+viridis (version 0.5.1)<br />
+
+This shiny app was made using the shiny package, version 1.5.0. This package was used to design the app, as well as used in creating all the creation of all statistical analyses, maps and graphs. This package is the backbone that allows this app to run. In addition, shinythemes package version 1.1.2 was used to help create the aesthetics of the app. The fresh package, version 0.2.0, was also used to help with the themes. Another package that was used was the tidyverse package version 1.3.0. This package was used in the cleaning and preparing. Furthermore, the broom package version 0.7.0 was used. This package was used to help the presentation of the results, specifically the results of the statistical analyses. In this app, the broom package was used to tidy the output from the statistical analyses to make it easier to read. Next, the sf package, version 0.9-6, and the tigris package, version 1.0, were both used to help create the geographical mapping of the United States. In creating the interactive map, the leaflet package, version 2.0.3, was used to aid in this process. Finally, the viridis package, version 0.5.1, was used to color the map made by the leaflet package.
+
 # Data Source and Structure
 
 One of the data sources used in this project comes from The COVID Tracking Project. This project is comprised from volunteers from *The Atlantic*. These volunteers have the goal of collecting and publishing data related to the coronavirus pandemic specifically in the United States. This data source contains information regarding number of deaths, number of cases, number of tests, and more. Structurally, this data collects information for each of the 50 U.S. states, the District of Columbia, and 5 U.S. territories. Each observation is in terms of days. What this means is that, each day, 56 new observations get added to the data set representing the COVID data from each of the 56 states/territories tracked. This means that there are a total of 14,730 observations with the first data being reported on January 22 (The COVID Tracking Project, 2020).
