@@ -86,7 +86,7 @@ ui <- fluidPage(
         ), #end sidebarPanel
         mainPanel(
           leafletOutput("map", height = 500),
-          textOutput("warning")
+          textOutput("warning2")
             ) #end mainPanel
     )  # End sidebarLaoyut
 )
@@ -372,7 +372,7 @@ server <- function(input, output, session) {
       
   }) # End renderTable
   
-  output$warning <- renderText({
+  output$warning2 <- renderText({
     if (input$mapvar == "On_Ventilator") {
       "CAUTION: Incomplete data for number of COVID cases on Ventilator"
     } else if (input$mapvar == "Recovered") {
