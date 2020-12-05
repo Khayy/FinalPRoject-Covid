@@ -16,22 +16,23 @@ death%>%
   select(State, "Condition Group", "Condition", "Age Group", Deaths, "Not Applicable")-> death
 
 =======
-age_gender%>%  ###data frame cleaning updates 
+age_gender%>%  ###removing variables update
   mutate("Not Applicable" = " ") %>%
   filter(`Age group` != c("24-34 years")) %>%
   filter(`Age group` != c("35-44 years")) %>%
   filter(`Age group` != c("45-54 years")) %>%
   filter(`Age group` != c("55-64 years")) -> age_gender
 
-COVID_Deaths%>%       ###data frame cleaning updates 
+COVID_Deaths%>%     ###removing variables update
   rename(State = NAME)%>%
   rename(Deaths = "Number of COVID-19 Deaths")%>%
   mutate("Not Applicable" = " ")%>%
   select(State, "Condition Group", "Condition", "Age Group", Deaths, "Not Applicable")%>%
   filter(`Age Group` != "Not stated") %>%
-  filter(`Age Group` != "All Ages") %>%
-  filter(State != "UStotal") -> COVID_Deaths
->>>>>>> 017c9001cf4bbbf1e7ce898e897047d014b2e318
+  filter(Condition != "COVID-19")%>%
+  filter(`Condition Group` != "Covid-19")%>%
+  filter(State != "UStotal") %>%
+  filter(`Age Group` != "All Ages")->COVID_Deaths
 
 
 
@@ -73,56 +74,57 @@ ui <- fluidPage(
 # Define server logic required to draw a histogram
 server <- function(input, output) {
  
-   output$anova_1 <- renderTable({     ##changes for output 
+   output$anova_1 <- renderTable({     ##changes for table readability 
     if (!!input$type_1 == "One-way"){
-      aov(Deaths ~ age_gender[[input$groups_1.1]], data = age_gender) %>%
+      aout1 <- aov(Deaths ~ age_gender[[input$groups_1.1]], data = age_gender) %>%
         tidy() %>%
         select(`Term` = term, 
                `Degrees of Freedom` = df, 
                `Sum of Squares` = sumsq, 
                `F Value` = statistic, 
                `P value` = p.value) 
+      aout1$Term[1] <-  as.character(input$groups_1.1)
+      print(aout1)
     }
-    else if (!!input$type_1 == "Two-way"){   ##changes for output 
-    aov(Deaths ~ age_gender[[input$groups_1.1]] + age_gender[[input$groups_1.2]], data = age_gender)%>%
+    else if (!!input$type_1 == "Two-way"){   ##changes for table readability  
+    aout1 <- aov(Deaths ~ age_gender[[input$groups_1.1]] + age_gender[[input$groups_1.2]], data = age_gender)%>%
       tidy() %>%
         select(`Term` = term, 
                `Degrees of Freedom` = df, 
                `Sum of Squares` = sumsq, 
                `F Value` = statistic, 
                `P value` = p.value)
+      aout1$Term[1] <-  as.character(input$groups_1.1)
+      aout1$Term[2] <-  as.character(input$groups_1.2)
+      print(aout1)
     }})
    
-  output$anova_2 <- renderTable({        ##changes for output
+  output$anova_2 <- renderTable({        ##changes for table readability 
      if (!!input$type_2 == "One-way"){
-<<<<<<< HEAD
-       two.way <- aov(Deaths ~ death[[input$groups_2.1]], data = death)
-       print (summary(two.way))
-     }
-     else if (!!input$type_2 == "Two-way"){
-       two.way <- aov(Deaths ~ death[[input$groups_2.1]] + death[[input$groups_2.2]], data = death)
-       print (summary(two.way))
-=======
-      aov(Deaths ~ COVID_Deaths[[input$groups_2.1]], data = COVID_Deaths)%>%
+      aout2 <-aov(Deaths ~ COVID_Deaths[[input$groups_2.1]], data = COVID_Deaths)%>%
        tidy() %>%
          select(`Term` = term, 
                 `Degrees of Freedom` = df, 
                 `Sum of Squares` = sumsq, 
                 `F Value` = statistic, 
                 `P value` = p.value)
+      aout2$Term[1] <-  as.character(input$groups_2.1)
+      print(aout2)
      }
-     else if (!!input$type_2 == "Two-way"){      ##changes for output
-      aov(Deaths ~ COVID_Deaths[[input$groups_2.1]] + COVID_Deaths[[input$groups_2.2]], data = COVID_Deaths)%>%
+     else if (!!input$type_2 == "Two-way"){      ##changes for table readability 
+       aout2 <-aov(Deaths ~ COVID_Deaths[[input$groups_2.1]] + COVID_Deaths[[input$groups_2.2]], data = COVID_Deaths)%>%
        tidy() %>%
          select(`Term` = term, 
                 `Degrees of Freedom` = df, 
                 `Sum of Squares` = sumsq, 
                 `F Value` = statistic, 
                 `P value` = p.value)
->>>>>>> 017c9001cf4bbbf1e7ce898e897047d014b2e318
+       aout2$Term[1] <-  as.character(input$groups_2.1)
+       aout2$Term[2] <-  as.character(input$groups_2.2)
+       print(aout2)
      }
   })
-   
+  
  output$anovaPlot_1 <- renderPlot({
    if (!!input$type_1 == "One-way"){
    age_gender%>%
