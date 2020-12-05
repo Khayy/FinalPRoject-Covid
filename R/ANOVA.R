@@ -3,18 +3,35 @@ library(tidyverse)
 library(broom)
 
 # Load Data
-death <- read_rds("../data/COVID_Deaths.rds")
+COVID_Deaths <- read_rds("../data/COVID_Deaths.rds")
 ctracking <- read_rds("../data/ctracking.rds")
 age_gender <- read_rds("../data/age_gender.rds")
-age_gender%>%
-  mutate("Not Applicable" = " ") -> age_gender
+pop <- read_rds("../data/pop.rds")
 
+<<<<<<< HEAD
 death%>%
   rename(State = NAME)%>%
   rename(Deaths = "Number of COVID-19 Deaths")%>%
   mutate("Not Applicable" = " ")%>%
   select(State, "Condition Group", "Condition", "Age Group", Deaths, "Not Applicable")-> death
 
+=======
+age_gender%>%  ###data frame cleaning updates 
+  mutate("Not Applicable" = " ") %>%
+  filter(`Age group` != c("24-34 years")) %>%
+  filter(`Age group` != c("35-44 years")) %>%
+  filter(`Age group` != c("45-54 years")) %>%
+  filter(`Age group` != c("55-64 years")) -> age_gender
+
+COVID_Deaths%>%       ###data frame cleaning updates 
+  rename(State = NAME)%>%
+  rename(Deaths = "Number of COVID-19 Deaths")%>%
+  mutate("Not Applicable" = " ")%>%
+  select(State, "Condition Group", "Condition", "Age Group", Deaths, "Not Applicable")%>%
+  filter(`Age Group` != "Not stated") %>%
+  filter(`Age Group` != "All Ages") %>%
+  filter(State != "UStotal") -> COVID_Deaths
+>>>>>>> 017c9001cf4bbbf1e7ce898e897047d014b2e318
 
 
 
@@ -35,8 +52,9 @@ ui <- fluidPage(
                          varSelectInput("groups_1.2",label = "If you would like to conduct a two-way ANOVA, please select another variable to investigate.",
                                         data = age_gender,
                                         selected = "Not Applicable"),
-                         verbatimTextOutput("anova_1")),
-                         mainPanel(plotOutput("anovaPlot_1")))),
+                         ),
+                         mainPanel(plotOutput("anovaPlot_1"),
+                                   tableOutput("anova_1")))), ##changes for output
               tabPanel("Statistical Analysis: Individuals With A Pre-existing Condition",
                                 sidebarLayout(sidebarPanel(
                                   radioButtons("type_2","Would you like to conduct a one-way or two-way ANOVA?", choices = c("One-way", "Two-way")),
@@ -46,32 +64,62 @@ ui <- fluidPage(
                                   varSelectInput("groups_2.2",label = "If you would like to conduct a two-way ANOVA, please select another variable to investigate.",
                                                  data = death,
                                                  selected = "Not Applicable"),
-                                  verbatimTextOutput("anova_2")),
-                                  mainPanel(plotOutput("anovaPlot_2"))))
+                                  ),
+                                  mainPanel(plotOutput("anovaPlot_2"),
+                                            tableOutput("anova_2")))) ##changes for output
   )
 )
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
  
-   output$anova_1 <- renderPrint({
+   output$anova_1 <- renderTable({     ##changes for output 
     if (!!input$type_1 == "One-way"){
-      one.way <- aov(Deaths ~ age_gender[[input$groups_1.1]], data = age_gender)
-      print (summary(one.way))
+      aov(Deaths ~ age_gender[[input$groups_1.1]], data = age_gender) %>%
+        tidy() %>%
+        select(`Term` = term, 
+               `Degrees of Freedom` = df, 
+               `Sum of Squares` = sumsq, 
+               `F Value` = statistic, 
+               `P value` = p.value) 
     }
-    else if (!!input$type_1 == "Two-way"){
-      two.way <- aov(Deaths ~ age_gender[[input$groups_1.1]] + age_gender[[input$groups_1.2]], data = age_gender)
-      print (summary(two.way))
+    else if (!!input$type_1 == "Two-way"){   ##changes for output 
+    aov(Deaths ~ age_gender[[input$groups_1.1]] + age_gender[[input$groups_1.2]], data = age_gender)%>%
+      tidy() %>%
+        select(`Term` = term, 
+               `Degrees of Freedom` = df, 
+               `Sum of Squares` = sumsq, 
+               `F Value` = statistic, 
+               `P value` = p.value)
     }})
    
-  output$anova_2 <- renderPrint({ 
+  output$anova_2 <- renderTable({        ##changes for output
      if (!!input$type_2 == "One-way"){
+<<<<<<< HEAD
        two.way <- aov(Deaths ~ death[[input$groups_2.1]], data = death)
        print (summary(two.way))
      }
      else if (!!input$type_2 == "Two-way"){
        two.way <- aov(Deaths ~ death[[input$groups_2.1]] + death[[input$groups_2.2]], data = death)
        print (summary(two.way))
+=======
+      aov(Deaths ~ COVID_Deaths[[input$groups_2.1]], data = COVID_Deaths)%>%
+       tidy() %>%
+         select(`Term` = term, 
+                `Degrees of Freedom` = df, 
+                `Sum of Squares` = sumsq, 
+                `F Value` = statistic, 
+                `P value` = p.value)
+     }
+     else if (!!input$type_2 == "Two-way"){      ##changes for output
+      aov(Deaths ~ COVID_Deaths[[input$groups_2.1]] + COVID_Deaths[[input$groups_2.2]], data = COVID_Deaths)%>%
+       tidy() %>%
+         select(`Term` = term, 
+                `Degrees of Freedom` = df, 
+                `Sum of Squares` = sumsq, 
+                `F Value` = statistic, 
+                `P value` = p.value)
+>>>>>>> 017c9001cf4bbbf1e7ce898e897047d014b2e318
      }
   })
    
@@ -83,7 +131,7 @@ server <- function(input, output) {
      geom_boxplot(show.legend = FALSE)+
        scale_y_log10()+
        ylab("Log of COVID-19 Deaths")+
-       theme(axis.text.x = element_text(angle = 75, vjust = 0.5, hjust = 1))
+       coord_flip() 
      
      }else if (!!input$type_1 == "Two-way"){
      age_gender%>%
@@ -92,7 +140,7 @@ server <- function(input, output) {
        geom_boxplot(show.legend = FALSE)+
          scale_y_log10()+
          ylab("Log of COVID-19 Deaths")+
-         theme(axis.text.x = element_text(angle = 75, vjust = 0.5, hjust = 1))
+         coord_flip() 
        }
   
  })
@@ -105,7 +153,7 @@ server <- function(input, output) {
        geom_boxplot(show.legend = FALSE)+ 
        scale_y_log10()+
        ylab("Log of COVID-19 Deaths")+
-       theme(axis.text.x = element_text(angle = 75, vjust = 0.5, hjust = 1))
+       coord_flip() 
      
    }else if (!!input$type_2 == "Two-way"){
      death%>%
@@ -114,7 +162,7 @@ server <- function(input, output) {
        geom_boxplot(show.legend = FALSE)+ 
        scale_y_log10() +
        ylab("Log of COVID-19 Deaths")+
-       theme(axis.text.x = element_text(angle = 75, vjust = 0.5, hjust = 1))
+       coord_flip() 
      }
    
  })
