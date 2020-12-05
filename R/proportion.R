@@ -5,7 +5,7 @@ library(broom)
  
 # Load Data
 death1 <- read_rds("../data/COVID_Deaths.rds") 
-ctracking1 <- read_rds("../data/ctracking.rds")
+ctracking <- read_rds("../data/ctracking.rds")
 age <- read_rds("../data/age_gender.rds") 
  
  
@@ -51,18 +51,27 @@ combine <- death_1 %>%
 dimension <- c("Age_Group","Condition","Status","Sex")
 
 ui <- fluidPage(
+  fluidRow(
+  column(4,
    radioButtons("status",
                 "Do you want to know which dimension of death in the United States?",
-                choices=dimension), 
+                choices=dimension)), 
+   column(4, offset = 1,
    selectInput("NAME","Which state do you want to check?",choices = unique(as.factor(combine$NAME))),
    selectInput("Age_Group","Which age group do you want to check?",choices = unique(as.factor(combine$Age_Group)), selected = "85+"),
-   selectInput("Sex","Which Sex do you want to check?",choices = unique(as.factor(combine$Sex))),
-   plotOutput("plot1"),
-   plotOutput("plot2"),
-   plotOutput("plot3"),
-   plotOutput("plot4")
-
-)
+   selectInput("Sex","Which Sex do you want to check?",choices = unique(as.factor(combine$Sex)))),
+   
+   tabsetPanel(
+     tabPanel("Overall U.S. situation",
+              plotOutput("plot4", width="100%", height=500)),
+     tabPanel("The situation in each state", 
+                     plotOutput("plot1", width="100%",height=250), 
+                       plotOutput("plot3", width="100%",height=250), 
+                     plotOutput("plot2",height=250))
+                
+              )))
+      
+   
 
 server <- function(input, output,session) {
    combine_1 <- reactive({ 
@@ -81,7 +90,7 @@ server <- function(input, output,session) {
         geom_col()+
         theme_bw()+
         coord_flip() +
-        labs(x="Age Group",
+        labs(x="Condition Group",
              y="Death Number",
              title="The overall number of deaths in the United States by age group")
       
