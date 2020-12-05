@@ -56,6 +56,8 @@ Based on the input you choose for the mapping, different t-tests will be run. Th
 # References
 Ballotpedia (2020).Partisan Composition of Governors.  https://ballotpedia.org/Partisan_composition_of_governors
 
+Center for Disease Control and Prevention. (2020, October 14). Conditions contributing to deaths involving coronavirus disease 2019 (COVID-19), by age group and state, United States. https://healthdata.gov/dataset/conditions-contributing-deaths-involving-coronavirus-disease-2019-covid-19-age-group-and. 
+
 Center for Disease Control and Prevention. (2020, November 18).Provisional COVID-19 Death Counts by Sex, Age, and State. https://data.cdc.gov/NCHS/Provisional-COVID-19-Death-Counts-by-Sex-Age-and-S/9bhg-hcku. 
 
 Mayo Clinic Staff. (2020, November 17). COVID-19 (coronavirus): Long-term effects. Retrieved December 04, 2020, from https://www.mayoclinic.org/diseases-conditions/coronavirus/in-depth/coronavirus-long-term-effects/art-20490351
