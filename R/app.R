@@ -175,7 +175,6 @@ mapping <- geo_join(states, ctracking2, "NAME", "NAME")
 # UI 
 ui <- fluidPage(
   theme = shinytheme("cosmo"),
-  # Application title
   titlePanel("Exploring Coronovirus Affects in the United States of America"),
   tabsetPanel(type = "tabs", 
               tabPanel("About",
@@ -196,7 +195,12 @@ ui <- fluidPage(
                        p("Statistical Analysis: Additional to the visualizations described above, you will have the opportunity to conduct several statistical analyses on the data previously described. Specifically, you will be able to conduct both a one-way and two-way analysis of variance (ANOVA) to investigate if there is a statistically significant difference in COVID outcomes. To learn more about ANOVA’s please follow this link: https://www.sciencedirect.com/topics/medicine-and-dentistry/analysis-of-variance"),
                        p("You will be able to conduct an one-way or two-way ANOVA on two populations. You will have the opportunity to look at the general population and conduct an ANOVA on COVID-19 deaths by age, location, and gender. Additionally, you will have the opportunity to look at the individuals with a pre-existing condition and conduct an ANOVA on COVID-19 deaths by age, condition, condition type and location. Results of an ANOVA analysis will tell you if there is a statistically significant difference between groups in relation to your outcome choice. Visualization for this analysis will also be created through box-plots.
 ")),
-              tabPanel ("Data Exploration & Visualization"),
+              tabPanel ("Data Exploration & Visualization"
+                        ),
+              
+              
+              
+              
               tabPanel("Statistical Analysis: General Population",
                        sidebarLayout(sidebarPanel(
                          radioButtons("type_1","Would you like to conduct a one-way or two-way ANOVA?", choices = c("One-way", "Two-way")),
@@ -862,6 +866,15 @@ server <- function(input, output) {
       xlab("Positive Tests") +
       ylab("") +
       ggtitle("Distribution of Positive Tests") 
+  })
+  
+  output$vent <- renderPlot({
+    ggplot(data = bplot2, aes(x = On_Ventilator)) +
+      geom_histogram()+
+      xlab("People on Ventilators") +
+      ylab("") +
+      ggtitle("Distribution of People on Ventilators",
+              subtitle = "CAUTION: Incomplete data number of COVID patients on Ventilators") 
   })
   
   #Mapping
