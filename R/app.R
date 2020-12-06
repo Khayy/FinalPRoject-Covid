@@ -16,6 +16,49 @@ age_gender <- read_rds("../data/age_gender.rds")
 age_gender%>%
   mutate("Not Applicable" = " ") -> age_gender
 
+# proportions
+# tidy each table
+age <- read_rds("../data/age_gender.rds") 
+death_dd <- death %>% 
+  select(abb,NAME,population,`Condition Group`,`Age Group`,`Number of COVID-19 Deaths`) %>% 
+  rename(deaths = "Number of COVID-19 Deaths",
+         Age_Group = `Age Group`,
+         state="abb",
+         Condition_Group=`Condition Group`) %>%  
+  mutate(Condition_Group=recode(Condition_Group,
+                                `All other conditions and causes (residual)`="other",
+                                `Intentional and unintentional injury, poisoning, and other adverse events`="adverse events"))
+
+ctracking_dd <- ctracking %>% 
+  select(Month,state,death,deathIncrease,negative,positive,
+         negativeIncrease,positiveIncrease ) %>%
+  filter(Month!=11) %>%
+  mutate(Month = recode(Month, 
+                        `2` = "Feb",
+                        `3` = "Mar",
+                        `4` = "Apr",
+                        `5` = "May",
+                        `6` = "Jun",
+                        `7` = "Jul",
+                        `8` = "Aug",
+                        `9` = "Sept",
+                        `10` = "Oct"))
+
+
+age_dd <- age %>% 
+  rename(NAME="State")
+age_dd$Deaths[is.na(age_dd$Deaths)]=0
+
+
+
+# combine three data  
+combine_dd <- death_dd %>% 
+  inner_join(ctracking_dd, by = "state") %>% 
+  inner_join(age_dd, by = "NAME")
+
+
+dimension <- c("Age_Group","Condition","Status","COVID19")
+
 death %>%
   rename(State = NAME)%>%
   rename(Deaths = "Number of COVID-19 Deaths")%>%
@@ -195,37 +238,28 @@ ui <- fluidPage(
                        p("Statistical Analysis: Additional to the visualizations described above, you will have the opportunity to conduct several statistical analyses on the data previously described. Specifically, you will be able to conduct both a one-way and two-way analysis of variance (ANOVA) to investigate if there is a statistically significant difference in COVID outcomes. To learn more about ANOVA’s please follow this link: https://www.sciencedirect.com/topics/medicine-and-dentistry/analysis-of-variance"),
                        p("You will be able to conduct an one-way or two-way ANOVA on two populations. You will have the opportunity to look at the general population and conduct an ANOVA on COVID-19 deaths by age, location, and gender. Additionally, you will have the opportunity to look at the individuals with a pre-existing condition and conduct an ANOVA on COVID-19 deaths by age, condition, condition type and location. Results of an ANOVA analysis will tell you if there is a statistically significant difference between groups in relation to your outcome choice. Visualization for this analysis will also be created through box-plots.
 ")),
-              tabPanel ("Data Exploration & Visualization"
-                        ),
-              
-              
-              
-              
-              tabPanel("Statistical Analysis: General Population",
-                       sidebarLayout(sidebarPanel(
-                         radioButtons("type_1","Would you like to conduct a one-way or two-way ANOVA?", choices = c("One-way", "Two-way")),
-                         varSelectInput("groups_1.1",label = "What grouping variable would you like to investigate?",
-                                        data = age_gender,
-                                        selected = "Age group"),
-                         varSelectInput("groups_1.2",label = "If you would like to conduct a two-way ANOVA, please select another variable to investigate.",
-                                        data = age_gender,
-                                        selected = "Not Applicable"),
-                         ),
-                         mainPanel(plotOutput("anovaPlot_1"),
-                                   tableOutput("anova_1")))),
-              tabPanel("Statistical Analysis: Individuals With A Pre-existing Condition",
-                       sidebarLayout(sidebarPanel(
-                         radioButtons("type_2","Would you like to conduct a one-way or two-way ANOVA?", choices = c("One-way", "Two-way")),
-                         varSelectInput("groups_2.1",label = "What grouping variable would you like to investigate?",
-                                        data = COVID_Deaths,
-                                        selected = "Age group"),
-                         varSelectInput("groups_2.2",label = "If you would like to conduct a two-way ANOVA, please select another variable to investigate.",
-                                        data = COVID_Deaths,
-                                        selected = "Not Applicable"),
-                         ),
-                         mainPanel(plotOutput("anovaPlot_2"),
-                                   tableOutput("anova_2")))),
-              tabPanel("Statistical Analysis: Boxplots",
+              tabPanel ("Data Exploration: Overall and by State",
+                        fluidRow(
+                          
+                          tabsetPanel(
+                            tabPanel("Overall U.S. situation",
+                                     radioButtons("status",
+                                                  "Do you want to know which dimension of death in the United States?",
+                                                  choices=dimension),
+                                     plotOutput("plot4", width="100%", height=500)
+                            ),
+                            
+                            tabPanel("The situation in each state", 
+                                     selectInput("NAME","Which state do you want to check?",choices = unique(as.factor(combine_dd$NAME))),
+                                     selectInput("Age_Group","Which age group do you want to check?",choices = unique(as.factor(combine_dd$Age_Group)), selected = "85+"),
+                                     selectInput("Sex","Which Sex do you want to check?",choices = unique(as.factor(combine_dd$Sex))),
+                                     plotOutput("plot1", width="90%",height=250), 
+                                     plotOutput("plot3", width="90%",height=250), 
+                                     plotOutput("plot2",height=250)
+                                     
+                            )))
+              ),
+              tabPanel("Data Visualization",
                        fluidRow(title = "Inputs",
                                 column(4,
                                        varSelectInput("boxvar1", "Please a Variable", data = bplot2,
@@ -255,9 +289,45 @@ ui <- fluidPage(
                                 plotOutput("cases", height = 500)),
                        fluidRow(title = "Overall Ventilator",
                                 plotOutput("vent", height = 500))),
+              tabPanel("Statistical Analysis: General Population",
+                       sidebarLayout(sidebarPanel(
+                         radioButtons("type_1","Would you like to conduct a one-way or two-way ANOVA?", choices = c("One-way", "Two-way")),
+                         varSelectInput("groups_1.1",label = "What grouping variable would you like to investigate?",
+                                        data = age_gender,
+                                        selected = "Age group"),
+                         varSelectInput("groups_1.2",label = "If you would like to conduct a two-way ANOVA, please select another variable to investigate.",
+                                        data = age_gender,
+                                        selected = "Not Applicable"),
+                       ),
+                       mainPanel(plotOutput("anovaPlot_1"),
+                                 tableOutput("anova_1")))),
+              tabPanel("Statistical Analysis: Individuals With A Pre-existing Condition",
+                       sidebarLayout(sidebarPanel(
+                         radioButtons("type_2","Would you like to conduct a one-way or two-way ANOVA?", choices = c("One-way", "Two-way")),
+                         varSelectInput("groups_2.1",label = "What grouping variable would you like to investigate?",
+                                        data = COVID_Deaths,
+                                        selected = "Age group"),
+                         varSelectInput("groups_2.2",label = "If you would like to conduct a two-way ANOVA, please select another variable to investigate.",
+                                        data = COVID_Deaths,
+                                        selected = "Not Applicable"),
+                       ),
+                       mainPanel(plotOutput("anovaPlot_2"),
+                                 tableOutput("anova_2")))),
               tabPanel("Maps Graphics",
-                       
+                       sidebarLayout(
+                         sidebarPanel(
+                           varSelectInput("mapvar", "Please Select a Variable to Map", data = ctracking4,
+                                          selected = "death"),
+                           checkboxInput("relative", "map unit per 100,000", value = FALSE),
+                           textOutput("intro"),
+                           tableOutput("map_anova")
+                         ), 
+                         mainPanel(
+                           leafletOutput("map", height = 500),
+                           textOutput("warning2")
+                         ) 
                        )
+              )
   )
 )
 
@@ -877,8 +947,427 @@ server <- function(input, output) {
               subtitle = "CAUTION: Incomplete data number of COVID patients on Ventilators") 
   })
   
-  #Mapping
+  # Proportions
+  combine_1 <- reactive({ 
+    combine_dd %>% 
+      select(NAME,Age_Group,deaths,Condition_Group) %>% 
+      filter(NAME==!!input$NAME,Age_Group==!!input$Age_Group) %>% 
+      na.omit(deaths) %>% 
+      unique() %>% 
+      group_by(NAME,Age_Group,Condition_Group) %>% 
+      summarize(deaths=sum(deaths)) %>% 
+      mutate(Condition_Group = fct_reorder(as.factor(Condition_Group),deaths)) 
+  })
   
+  output$plot1 <- renderPlot({
+    ggplot(combine_1(), aes(x=Condition_Group, y=deaths))+
+      geom_col()+
+      theme_bw()+
+      coord_flip() +
+      labs(x="Condition Group",
+           y="Death toll",
+           title="The overall number of deaths in different state and age group by condition group")
+    
+  })
+  
+  combine_2 <- reactive({ 
+    combine_dd %>% 
+      select(Month,NAME,death,deathIncrease,positive,positiveIncrease,negative,negativeIncrease) %>% 
+      pivot_longer(cols=death:negativeIncrease,
+                   names_to = "tendence",
+                   values_to="values") %>% 
+      filter(NAME==!!input$NAME) %>%  
+      unique()  
+  })
+  
+  output$plot2 <- renderPlot({
+    ggplot(combine_2(),aes(x=as.numeric(as.factor(Month)),y=values,colour= tendence))+
+      geom_point()+
+      geom_line()+
+      labs(x="Month",
+           y="Death toll",
+           title="The number change of different tendence through month")+
+      facet_wrap(~tendence,scales = "free")
+    
+  })
+  
+  combine_3 <- reactive({ 
+    combine_dd %>% 
+      select(NAME,Sex,`Age group`,Deaths) %>% 
+      filter(NAME==!!input$NAME,Sex==!!input$Sex) 
+  })
+  
+  output$plot3 <- renderPlot({
+    ggplot( combine_3(),aes(x=`Age group`,y=Deaths))+
+      geom_col()+
+      theme_bw()+
+      coord_flip() +
+      labs(x="Age Group",
+           y="Death toll",
+           title="The overall number of deaths in different states and gender by age group")
+    
+  })
+  
+  
+  
+  output$plot4  <- renderPlot({
+    if(!!input$status == "Age_Group" ){
+      combine_dd %>%
+        select(Age_Group,deaths) %>% 
+        group_by(Age_Group) %>% 
+        summarise(Agedeath=sum(deaths,na.rm = T)) %>% 
+        filter(`Age_Group` != "All Ages" & `Age_Group` != "Not stated" ) %>% 
+        ggplot(aes(x=Age_Group, y=Agedeath))+
+        geom_col()+
+        theme_bw()+
+        coord_flip() +
+        labs(x="Age Group",
+             y="Death toll",
+             title="The overall number of deaths in the United States by age group")  }
+    
+    else  if(!!input$status == "Condition"){
+      combine_dd %>% 
+        select(Condition_Group,deaths) %>% 
+        group_by(Condition_Group) %>% 
+        summarise(Conditiondeath=sum(deaths,na.rm = T)) %>%
+        mutate(Condition_Group = fct_reorder(as.factor(Condition_Group),Conditiondeath)) %>% 
+        ggplot(aes(x=Condition_Group, y=Conditiondeath))+
+        geom_col()+
+        theme_bw()+
+        coord_flip() +
+        labs(x="Conditions",
+             y="Death toll",
+             title="The overall number of deaths in U.S by different condition") }
+    else  if(!!input$status == "Status"){
+      combine_dd %>% 
+        dplyr::select(Month,death,deathIncrease,positive,positiveIncrease,negative,negativeIncrease) %>% 
+        group_by(Month) %>% 
+        unique() %>% 
+        summarise(sumdeath=sum(death,na.rm = T),
+                  sumdeathIncrease=sum(deathIncrease,na.rm = T),
+                  sumpositive=sum(positive,na.rm = T),
+                  sumpositiveIncrease=sum(positiveIncrease,na.rm = T),
+                  sumnegative=sum(negative,na.rm = T),
+                  sumnegativeIncrease=sum(negativeIncrease,na.rm = T),
+                  Month=unique(Month)) %>%
+        pivot_longer(cols=sumdeath:sumnegativeIncrease,
+                     names_to = "Status",
+                     values_to="values") %>% 
+        ggplot(aes(x= as.numeric(as.factor(Month)), y= values, colour= Status))+
+        geom_line()+
+        theme_bw()+
+        facet_wrap(~Status,scales = "free")+
+        labs(x="Conditions",
+             y="Death toll",
+             title="The overall number of deaths in U.S by different condition")}
+    else  if(!!input$status == "COVID19"){
+      combine_dd %>% 
+        select(NAME,Condition_Group,Age_Group,deaths) %>% 
+        filter(Condition_Group=="COVID-19"&Age_Group=="All Ages") %>% 
+        unique() %>% 
+        mutate(NAME=fct_reorder(as.factor(NAME),deaths)) %>% 
+        ggplot(aes(x=NAME,y=deaths))+
+        geom_col()+
+        theme_bw()+ 
+        coord_flip() +
+        labs(x="State", 
+             y="Death toll",
+             title="The overall number of people who died of COVID19 in U.S by different state")
+    }
+    
+  })
+  
+  
+  #Mapping
+  output$map <- renderLeaflet({
+    validate(need(
+      is.numeric(ctracking2[[input$mapvar]]) == "TRUE" & input$mapvar != "Month",
+      "Please select a numeric variable"
+    ))
+    
+    leaf <- leaflet() %>% 
+      addProviderTiles("CartoDB.Positron") %>%
+      setView(-98.483330, 38.712046, zoom = 4)
+    
+    if (input$relative == TRUE) {
+      if (input$mapvar == "death") {
+        # Color palette
+        pal <- colorNumeric("Reds", domain=mapping$deaths_per_capita)
+        
+        # Setting up the pop up text
+        popup_sb <- paste0(mapping$NAME,": ", mapping$deaths_per_capita)
+        
+        leaf %>%
+          addPolygons(data = mapping, 
+                      fillColor = ~pal(mapping$deaths_per_capita), 
+                      fillOpacity = 0.7, 
+                      weight = 0.2, 
+                      smoothFactor = 0.2, 
+                      popup = ~popup_sb) %>%
+          addLegend(pal = pal, 
+                    values = mapping$deaths_per_capita, 
+                    position = "bottomright")
+        
+      } else if (input$mapvar == "Hospitalized") {
+        
+        # Color palette
+        pal <- colorNumeric("Reds", domain=mapping$Hospitalized)
+        
+        # Setting up the pop up text
+        popup_sb <- paste0(mapping$NAME,": ", mapping$Hospitalized)
+        
+        leaf %>%
+          addPolygons(data = mapping , 
+                      fillColor = ~pal(mapping$Hospitalized), 
+                      fillOpacity = 0.7, 
+                      weight = 0.2, 
+                      smoothFactor = 0.2, 
+                      popup = ~popup_sb) %>%
+          addLegend(pal = pal, 
+                    values = mapping$Hospitalized, 
+                    position = "bottomright")
+        
+      } else if (input$mapvar == "On_Ventilator") {
+        
+        # Color palette
+        pal <- colorNumeric("Reds", domain=mapping$On_Ventilator)
+        
+        # Setting up the pop up text
+        popup_sb <- paste0(mapping$NAME,": ", mapping$On_Ventilator)
+        
+        leaf %>%
+          addPolygons(data = mapping , 
+                      fillColor = ~pal(mapping$On_Ventilator), 
+                      fillOpacity = 0.7, 
+                      weight = 0.2, 
+                      smoothFactor = 0.2, 
+                      popup = ~popup_sb) %>%
+          addLegend(pal = pal, 
+                    values = mapping$On_Ventilator, 
+                    position = "bottomright")
+        
+      } else if (input$mapvar == "Negative_Test") {
+        
+        # Color palette
+        pal <- colorNumeric("Reds", domain=mapping$negative_test_per_capita)
+        
+        # Setting up the pop up text
+        popup_sb <- paste0(mapping$NAME,": ", mapping$negative_test_per_capita)
+        
+        leaf %>%
+          addPolygons(data = mapping , 
+                      fillColor = ~pal(mapping$negative_test_per_capita), 
+                      fillOpacity = 0.7, 
+                      weight = 0.2, 
+                      smoothFactor = 0.2, 
+                      popup = ~popup_sb) %>%
+          addLegend(pal = pal, 
+                    values = mapping$negative_test_per_capita, 
+                    position = "bottomright")
+        
+      } else if (input$mapvar == "Positive_Test") {
+        
+        # Color palette
+        pal <- colorNumeric("Reds", domain=mapping$positive_test_per_capita)
+        
+        # Setting up the pop up text
+        popup_sb <- paste0(mapping$NAME,": ", mapping$positive_test_per_capita)
+        
+        leaf %>%
+          addPolygons(data = mapping , 
+                      fillColor = ~pal(mapping$positive_test_per_capita), 
+                      fillOpacity = 0.7, 
+                      weight = 0.2, 
+                      smoothFactor = 0.2, 
+                      popup = ~popup_sb) %>%
+          addLegend(pal = pal, 
+                    values = mapping$positive_test_per_capita, 
+                    position = "bottomright")
+        
+      } else if (input$mapvar == "Recovered") {
+        
+        # Color palette
+        pal <- colorNumeric("Reds", domain=mapping$Recovered)
+        
+        # Setting up the pop up text
+        popup_sb <- paste0(mapping$NAME,": ", mapping$Recovered)
+        
+        leaf %>%
+          addPolygons(data = mapping , 
+                      fillColor = ~pal(mapping$Recovered), 
+                      fillOpacity = 0.7, 
+                      weight = 0.2, 
+                      smoothFactor = 0.2, 
+                      popup = ~popup_sb) %>%
+          addLegend(pal = pal, 
+                    values = mapping$Recovered, 
+                    position = "bottomright")
+        
+      }
+    }
+    else {
+      if (input$mapvar == "death") {
+        # Color palette
+        pal <- colorNumeric("Reds", domain=mapping$death)
+        
+        # Setting up the pop up text
+        popup_sb <- paste0(mapping$NAME,": ", mapping$death)
+        
+        leaf %>%
+          addPolygons(data = mapping, 
+                      fillColor = ~pal(mapping$death), 
+                      fillOpacity = 0.7, 
+                      weight = 0.2, 
+                      smoothFactor = 0.2, 
+                      popup = ~popup_sb) %>%
+          addLegend(pal = pal, 
+                    values = mapping$death, 
+                    position = "bottomright")
+        
+      } else if (input$mapvar == "Hospitalized") {
+        
+        # Color palette
+        pal <- colorNumeric("Reds", domain=mapping$Hospitalized)
+        
+        # Setting up the pop up text
+        popup_sb <- paste0(mapping$NAME,": ", mapping$Hospitalized)
+        
+        leaf %>%
+          addPolygons(data = mapping , 
+                      fillColor = ~pal(mapping$Hospitalized), 
+                      fillOpacity = 0.7, 
+                      weight = 0.2, 
+                      smoothFactor = 0.2, 
+                      popup = ~popup_sb) %>%
+          addLegend(pal = pal, 
+                    values = mapping$Hospitalized, 
+                    position = "bottomright")
+        
+      } else if (input$mapvar == "On_Ventilator") {
+        
+        # Color palette
+        pal <- colorNumeric("Reds", domain=mapping$On_Ventilator)
+        
+        # Setting up the pop up text
+        popup_sb <- paste0(mapping$NAME,": ", mapping$On_Ventilator)
+        
+        leaf %>%
+          addPolygons(data = mapping , 
+                      fillColor = ~pal(mapping$On_Ventilator), 
+                      fillOpacity = 0.7, 
+                      weight = 0.2, 
+                      smoothFactor = 0.2, 
+                      popup = ~popup_sb) %>%
+          addLegend(pal = pal, 
+                    values = mapping$On_Ventilator, 
+                    position = "bottomright")
+        
+      } else if (input$mapvar == "Negative_Test") {
+        
+        # Color palette
+        pal <- colorNumeric("Reds", domain=mapping$Negative_Test)
+        
+        # Setting up the pop up text
+        popup_sb <- paste0(mapping$NAME,": ", mapping$Negative_Test)
+        
+        leaf %>%
+          addPolygons(data = mapping , 
+                      fillColor = ~pal(mapping$Negative_Test), 
+                      fillOpacity = 0.7, 
+                      weight = 0.2, 
+                      smoothFactor = 0.2, 
+                      popup = ~popup_sb) %>%
+          addLegend(pal = pal, 
+                    values = mapping$Negative_Test, 
+                    position = "bottomright")
+        
+      } else if (input$mapvar == "Positive_Test") {
+        
+        # Color palette
+        pal <- colorNumeric("Reds", domain=mapping$Positive_Test)
+        
+        # Setting up the pop up text
+        popup_sb <- paste0(mapping$NAME,": ", mapping$Positive_Test)
+        
+        leaf %>%
+          addPolygons(data = mapping , 
+                      fillColor = ~pal(mapping$Positive_Test), 
+                      fillOpacity = 0.7, 
+                      weight = 0.2, 
+                      smoothFactor = 0.2, 
+                      popup = ~popup_sb) %>%
+          addLegend(pal = pal, 
+                    values = mapping$Positive_Test, 
+                    position = "bottomright")
+        
+      } else if (input$mapvar == "Recovered") {
+        
+        # Color palette
+        pal <- colorNumeric("Reds", domain=mapping$Recovered)
+        
+        # Setting up the pop up text
+        popup_sb <- paste0(mapping$NAME,": ", mapping$Recovered)
+        
+        leaf %>%
+          addPolygons(data = mapping , 
+                      fillColor = ~pal(mapping$Recovered), 
+                      fillOpacity = 0.7, 
+                      weight = 0.2, 
+                      smoothFactor = 0.2, 
+                      popup = ~popup_sb) %>%
+          addLegend(pal = pal, 
+                    values = mapping$Recovered, 
+                    position = "bottomright")
+        
+      }
+    }
+    
+  }) # End renderLeaflet
+  
+  output$map_anova <- renderTable({
+    validate(need(
+      is.numeric(ctracking2[[input$mapvar]]) == "TRUE" & input$mapvar != "Month",
+      "Please select a numeric variable"
+    ))
+    
+    if (input$relative == TRUE) {
+      if (input$mapvar == "death") {
+        t.test(ctracking2$deaths_per_capita ~ Party, data = ctracking2) %>%
+          tidy() %>%
+          select(`P-value` = p.value, estimate,
+                 `95% Lower` = conf.low, `95% Upper` = conf.high)
+      } else if (input$mapvar == "Positive_Test") {
+        t.test(ctracking2$positive_test_per_capita ~ Party, data = ctracking2) %>%
+          tidy() %>%
+          select(`P-value` = p.value, estimate,
+                 `95% Lower` = conf.low, `95% Upper` = conf.high)
+      } else if (input$mapvar == "Negative_Test") {
+        t.test(ctracking2$negative_test_per_capita ~ Party, data = ctracking2) %>%
+          tidy() %>%
+          select(`P-value` = p.value, estimate,
+                 `95% Lower` = conf.low, `95% Upper` = conf.high)
+      }
+    }
+    else {
+      t.test(ctracking2[[input$mapvar]] ~ Party, data = ctracking2) %>%
+        tidy() %>%
+        select(`P-value` = p.value, estimate,
+               `95% Lower` = conf.low, `95% Upper` = conf.high)
+    }
+    
+  }) # End renderTable
+  
+  output$warning2 <- renderText({
+    if (input$mapvar == "On_Ventilator") {
+      "CAUTION: Incomplete data for number of COVID cases on Ventilator"
+    } else if (input$mapvar == "Recovered") {
+      "CAUTION: Incomplete data number of Recovered COVID Patients"
+    }
+  })
+  
+  output$intro <- renderText({
+    "Testing to see if means differ by political party of Governor"
+  })
   
 }
 
