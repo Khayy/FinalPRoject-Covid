@@ -50,6 +50,8 @@ combine <- death_1 %>%
 
 dimension <- c("Age_Group","Condition","Status","Sex")
 
+
+
 ui <- fluidPage(
   fluidRow(
   column(4,
