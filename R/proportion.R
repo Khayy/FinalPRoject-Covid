@@ -58,15 +58,15 @@ ui <- fluidPage(
    tabsetPanel(
      tabPanel("Overall U.S. situation",
               radioButtons("status",
-                           "Do you want to know which dimension of death in the United States?",
+                           "Please select a variable to explore?",
                            choices=dimension),
               plotOutput("plot4", width="100%", height=500)
              ),
      
      tabPanel("The situation in each state", 
-              selectInput("NAME","Which state do you want to check?",choices = unique(as.factor(combine_dd$NAME))),
-              selectInput("Age_Group","Which age group do you want to check?",choices = unique(as.factor(combine_dd$Age_Group)), selected = "85+"),
-              selectInput("Sex","Which Sex do you want to check?",choices = unique(as.factor(combine_dd$Sex))),
+              selectInput("NAME","Which state do you want to explore?",choices = unique(as.factor(combine_dd$NAME))),
+              selectInput("Age_Group","Which age group do you want to explore?",choices = unique(as.factor(combine_dd$Age_Group)), selected = "85+"),
+              selectInput("Sex","Which Sex do you want to explore?",choices = unique(as.factor(combine_dd$Sex))),
                      plotOutput("plot1", width="90%",height=250), 
                      plotOutput("plot3", width="90%",height=250), 
                      plotOutput("plot2",height=250)
@@ -193,9 +193,9 @@ server <- function(input, output,session) {
                  geom_line(show.legend = F)+
                  theme_bw()+
                  facet_wrap(~Status,scales = "free")+
-                 labs(x="Conditions",
+                 labs(x="Month",
                       y="Death toll",
-                      title="The overall number of deaths in U.S by different condition")}
+                      title="COVID-19 deaths, positive tests, and negative tests over time")}
            else  if(!!input$status == "COVID19"){
              ctracking_dd %>% 
                select(state,deathIncrease) %>% 
