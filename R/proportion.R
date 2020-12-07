@@ -18,12 +18,12 @@ death_dd <- death %>%
           Condition_Group=`Condition Group`) %>%  
    mutate(Condition_Group=recode(Condition_Group,
                                  `All other conditions and causes (residual)`="other",
-                                 `Intentional and unintentional injury, poisoning, and other adverse events`="adverse events"))
+                                 `Intentional and unintentional injury, poisoning, and other adverse events`="adverse events")) %>%
+  filter(Age_Group != "All Ages" & Age_Group != "Not stated", NAME != "UStotal")
 
 ctracking_dd <- ctracking %>% 
-   select(Month,state,death,deathIncrease,negative,positive,
+   select(Month,state,deathIncrease,
           negativeIncrease,positiveIncrease ) %>%
-   filter(Month!=11) %>%
    mutate(Month = recode(Month, 
                          `2` = "Feb",
                          `3` = "Mar",
@@ -33,7 +33,8 @@ ctracking_dd <- ctracking %>%
                          `7` = "Jul",
                          `8` = "Aug",
                          `9` = "Sept",
-                         `10` = "Oct"))
+                         `10` = "Oct",
+                         `11` = "Nov"))
 
 
 age_dd <- age %>% 
@@ -50,12 +51,7 @@ combine_dd <- death_dd %>%
 
 dimension <- c("Age_Group","Condition","Status","COVID19")
 
-<<<<<<< HEAD
-
-
-=======
 # UI start
->>>>>>> 09c0ddb7caf5dd0c3312256d5a803e9083897525
 ui <- fluidPage(
   fluidRow(
     
@@ -103,13 +99,21 @@ server <- function(input, output,session) {
   })
   
   combine_2 <- reactive({ 
-     combine_dd %>% 
-        select(Month,NAME,death,deathIncrease,positive,positiveIncrease,negative,negativeIncrease) %>% 
-        pivot_longer(cols=death:negativeIncrease,
+     ctracking_dd %>% 
+        select(Month,state, deathIncrease,positiveIncrease,negativeIncrease) %>%
+        mutate(NAME = state.name[match(state,state.abb)])%>%
+        mutate(NAME = ifelse(state == "PR", "Puerto Rico",
+                             ifelse(state == "DC", "District of Columbia",
+                                    NAME))) %>%
+        rename(death = deathIncrease,
+               positive = positiveIncrease,
+               negative = negativeIncrease)  %>%
+        select(Month, NAME, state, everything()) %>%
+        pivot_longer(cols=death:negative,
                      names_to = "tendence",
                      values_to="values") %>% 
         filter(NAME==!!input$NAME) %>%  
-        unique()  
+        unique() 
   })
   
   output$plot2 <- renderPlot({
@@ -124,9 +128,12 @@ server <- function(input, output,session) {
   })
   
   combine_3 <- reactive({ 
-     combine_dd %>% 
+     age_dd %>% 
         select(NAME,Sex,`Age group`,Deaths) %>% 
-        filter(NAME==!!input$NAME,Sex==!!input$Sex) 
+        filter(NAME==!!input$NAME,Sex==!!input$Sex) %>%
+        filter(`Age group` == "18-29 years" | `Age group` == "30-49 years" |
+               `Age group` == "50-64 years" | `Age group` == "65-74 years" |
+               `Age group` == "75-84 years" | `Age group` == "85 years and over")
   })
   
   output$plot3 <- renderPlot({
@@ -144,12 +151,11 @@ server <- function(input, output,session) {
 
   output$plot4  <- renderPlot({
      if(!!input$status == "Age_Group" ){
-        combine_dd %>%
-           select(Age_Group,deaths) %>% 
-           group_by(Age_Group) %>% 
-           summarise(Agedeath=sum(deaths,na.rm = T)) %>% 
-           filter(`Age_Group` != "All Ages" & `Age_Group` != "Not stated" ) %>% 
-           ggplot(aes(x=Age_Group, y=Agedeath))+
+        age_dd %>%
+           select(`Age group`,Deaths) %>% 
+           group_by(`Age group`) %>% 
+           summarise(Agedeath=sum(Deaths,na.rm = T)) %>% 
+           ggplot(aes(x=`Age group`, y=Agedeath))+
            geom_col()+
            theme_bw()+
            coord_flip() +
@@ -158,10 +164,11 @@ server <- function(input, output,session) {
                 title="The overall number of deaths in the United States by age group")  }
      
      else  if(!!input$status == "Condition"){
-         combine_dd %>% 
+         death_dd %>% 
               select(Condition_Group,deaths) %>% 
               group_by(Condition_Group) %>% 
               summarise(Conditiondeath=sum(deaths,na.rm = T)) %>%
+              ungroup() %>%
               mutate(Condition_Group = fct_reorder(as.factor(Condition_Group),Conditiondeath)) %>% 
               ggplot(aes(x=Condition_Group, y=Conditiondeath))+
               geom_col()+
@@ -171,18 +178,15 @@ server <- function(input, output,session) {
                    y="Death toll",
                    title="The overall number of deaths in U.S by different condition") }
         else  if(!!input$status == "Status"){
-               combine_dd %>% 
-                 dplyr::select(Month,death,deathIncrease,positive,positiveIncrease,negative,negativeIncrease) %>% 
+               ctracking_dd %>% 
+                 dplyr::select(Month,deathIncrease,positiveIncrease,negativeIncrease) %>% 
                  group_by(Month) %>% 
                  unique() %>% 
-                 summarise(sumdeath=sum(death,na.rm = T),
-                           sumdeathIncrease=sum(deathIncrease,na.rm = T),
-                           sumpositive=sum(positive,na.rm = T),
-                           sumpositiveIncrease=sum(positiveIncrease,na.rm = T),
-                           sumnegative=sum(negative,na.rm = T),
-                           sumnegativeIncrease=sum(negativeIncrease,na.rm = T),
+                 summarise(sumdeath=sum(deathIncrease,na.rm = T),
+                           sumpositive=sum(positiveIncrease,na.rm = T),
+                           sumnegative=sum(negativeIncrease,na.rm = T),
                            Month=unique(Month)) %>%
-                 pivot_longer(cols=sumdeath:sumnegativeIncrease,
+                 pivot_longer(cols=sumdeath:sumnegative,
                               names_to = "Status",
                               values_to="values") %>% 
                  ggplot(aes(x= as.numeric(as.factor(Month)), y= values, colour= Status))+
@@ -193,12 +197,12 @@ server <- function(input, output,session) {
                       y="Death toll",
                       title="The overall number of deaths in U.S by different condition")}
            else  if(!!input$status == "COVID19"){
-             combine_dd %>% 
-               select(NAME,Condition_Group,Age_Group,deaths) %>% 
-               filter(Condition_Group=="COVID-19"&Age_Group=="All Ages") %>% 
-               unique() %>% 
-               mutate(NAME=fct_reorder(as.factor(NAME),deaths)) %>% 
-               ggplot(aes(x=NAME,y=deaths))+
+             ctracking_dd %>% 
+               select(state,deathIncrease) %>% 
+               group_by(state) %>%
+               summarize(death = sum(deathIncrease, na.rm = T)) %>%
+               ungroup() %>%
+               ggplot(aes(x=reorder(state, death),y=death))+
                geom_col()+
                theme_bw()+ 
                coord_flip() +
