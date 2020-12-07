@@ -217,7 +217,7 @@ mapping <- geo_join(states, ctracking2, "NAME", "NAME")
 
 # UI 
 ui <- fluidPage(
-  theme = shinytheme("cosmo"),
+  theme = shinytheme("sandstone"),
   titlePanel("Exploring Coronovirus Affects in the United States of America"),
   tabsetPanel(type = "tabs", 
               tabPanel("About",
@@ -336,42 +336,52 @@ server <- function(input, output) {
   
   output$anova_1 <- renderTable({     ##changes for output 
     if (!!input$type_1 == "One-way"){
-      aov(Deaths ~ age_gender[[input$groups_1.1]], data = age_gender) %>%
+      aout1 <- aov(Deaths ~ age_gender[[input$groups_1.1]], data = age_gender) %>%
         tidy() %>%
         select(`Term` = term, 
                `Degrees of Freedom` = df, 
                `Sum of Squares` = sumsq, 
                `F Value` = statistic, 
                `P value` = p.value) 
+      aout1$Term[1] <-  as.character(input$groups_1.1)
+      print(aout1)
     }
     else if (!!input$type_1 == "Two-way"){   ##changes for output 
-      aov(Deaths ~ age_gender[[input$groups_1.1]] + age_gender[[input$groups_1.2]], data = age_gender)%>%
+      aout1 <- aov(Deaths ~ age_gender[[input$groups_1.1]] + age_gender[[input$groups_1.2]], data = age_gender)%>%
         tidy() %>%
         select(`Term` = term, 
                `Degrees of Freedom` = df, 
                `Sum of Squares` = sumsq, 
                `F Value` = statistic, 
                `P value` = p.value)
+      aout1$Term[1] <-  as.character(input$groups_1.1)
+      aout1$Term[2] <-  as.character(input$groups_1.2)
+      print(aout1)
     }})
   
   output$anova_2 <- renderTable({        ##changes for output
     if (!!input$type_2 == "One-way"){
-      aov(Deaths ~ COVID_Deaths[[input$groups_2.1]], data = COVID_Deaths)%>%
+ aout2 <-aov(Deaths ~ COVID_Deaths[[input$groups_2.1]], data = COVID_Deaths)%>%
         tidy() %>%
         select(`Term` = term, 
                `Degrees of Freedom` = df, 
                `Sum of Squares` = sumsq, 
                `F Value` = statistic, 
                `P value` = p.value)
+ aout2$Term[1] <-  as.character(input$groups_2.1)
+ print(aout2)
     }
     else if (!!input$type_2 == "Two-way"){      ##changes for output
-      aov(Deaths ~ COVID_Deaths[[input$groups_2.1]] + COVID_Deaths[[input$groups_2.2]], data = COVID_Deaths)%>%
+aout2 <-aov(Deaths ~ COVID_Deaths[[input$groups_2.1]] + COVID_Deaths[[input$groups_2.2]], data = COVID_Deaths)%>%
         tidy() %>%
         select(`Term` = term, 
                `Degrees of Freedom` = df, 
                `Sum of Squares` = sumsq, 
                `F Value` = statistic, 
                `P value` = p.value)
+aout2$Term[1] <-  as.character(input$groups_2.1)
+aout2$Term[2] <-  as.character(input$groups_2.2)
+print(aout2)
     }
   })
   
