@@ -118,8 +118,8 @@ server <- function(input, output,session) {
   
   output$plot2 <- renderPlot({
      ggplot(combine_2(),aes(x=as.numeric(as.factor(Month)),y=values,colour= tendence))+
-        geom_point()+
-        geom_line()+
+        geom_point(show.legend = F)+
+        geom_line(show.legend = F)+
       labs(x="Month",
            y="Death toll",
            title="The number change of different tendence through month")+
@@ -190,7 +190,7 @@ server <- function(input, output,session) {
                               names_to = "Status",
                               values_to="values") %>% 
                  ggplot(aes(x= as.numeric(as.factor(Month)), y= values, colour= Status))+
-                 geom_line()+
+                 geom_line(show.legend = F)+
                  theme_bw()+
                  facet_wrap(~Status,scales = "free")+
                  labs(x="Conditions",
