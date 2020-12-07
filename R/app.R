@@ -262,9 +262,9 @@ ui <- fluidPage(
               tabPanel("Data Visualization",
                        fluidRow(title = "Inputs",
                                 column(4,
-                                       varSelectInput("boxvar1", "Please a Variable", data = bplot2,
+                                       varSelectInput("boxvar1", "Please Select Two Variables to Graph", data = bplot2,
                                                       selected = "Month"),
-                                       varSelectInput("boxvar2", "Please another Variable", data = bplot2,
+                                       varSelectInput("boxvar2", label = NULL, data = bplot2,
                                                       selected = "Number_of_Deaths")
                                 ), # End column
                                 column(4,
