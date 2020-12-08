@@ -12,7 +12,7 @@
 
 <meta name="author" content="Kingsley David Onyewuchi Ofoegbu, Jazelle Pilao, Doudou Shi, and Evan Steinberg" />
 
-<meta name="date" content="2020-12-07" />
+<meta name="date" content="2020-12-08" />
 
 <title>Vignette</title>
 
@@ -231,7 +231,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">Vignette</h1>
 <h4 class="author">Kingsley David Onyewuchi Ofoegbu, Jazelle Pilao, Doudou Shi, and Evan Steinberg</h4>
-<h4 class="date">2020-12-07</h4>
+<h4 class="date">2020-12-08</h4>
 
 
 
@@ -246,7 +246,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </div>
 <div id="data-source-and-structure" class="section level1">
 <h1>Data Source and Structure</h1>
-<p>One of the data sources used in this project comes from The COVID Tracking Project. This project is comprised from volunteers from <em>The Atlantic</em>. These volunteers have the goal of collecting and publishing data related to the coronavirus pandemic specifically in the United States. This data source contains information regarding number of deaths, number of cases, number of tests, and more. Structurally, this data collects information for each of the 50 U.S. states, the District of Columbia, and 5 U.S. territories. Each observation is in terms of days. What this means is that, each day, 56 new observations get added to the data set representing the COVID data from each of the 56 states/territories tracked. This means that there are a total of 14,730 observations with the first data being reported on January 22 (The COVID Tracking Project, 2020).</p>
+<p>One of the data sources used in this project comes from The COVID Tracking Project. This project is comprised from volunteers from <em>The Atlantic</em>. These volunteers have the goal of collecting and publishing data related to the coronavirus pandemic specifically in the United States. This data source contains information regarding number of deaths, number of cases, number of tests, and more. Structurally, this data collects information for each of the 50 U.S. states, the District of Columbia, and 5 U.S. territories. Each observation is in terms of days. What this means is that, each day, 56 new observations get added to the data set representing the COVID data from each of the 56 states/territories tracked. This means that there are a total of 14,730 observations with the first data being reported on January 22. It is important to note that, unfortunately, the data regarding the number of people on a ventilator due to coronavirus is incomplete. Not all states report this data. While we still present graphs showing the number of people on ventilator by various conditions, it is important to note that the data is incomplete (The COVID Tracking Project, 2020).</p>
 <p>Another data source used comes from Ballotpedia. This source gives information on the political party of each of the state governors, including the governors of 5 U.S. territories. In terms of structure, this data has one row for each state/U.S. territory. In this row, there is the name of the state, the state abbreviation, and the party the governor belongs to (Ballotpedia, 2020).</p>
 <p>Another source used is from the U.S. Census. This source contains information regarding the population of the United States broken down by state. This source also contains information for the District of Columbia and Puerto Rico. In terms of structure, each state has its own row. In addition, the District of Columbia has a row, as does Puerto Rico. Furthermore, there is a row for the United States overall, and four different regions: Northeast, Midwest, South, and West. Each row contains information regarding the population from 2010 to 2019. Each row has the population totals for each of those 10 years, the percent increase over the years, number of deaths, births, etc. For a complete list of the variables in this data set, please consult the data dictionary <a href="https://www2.census.gov/programs-surveys/popest/technical-documentation/file-layouts/2010-2019/nst-est2019-alldata.pdf">here</a>. (U.S. Census Bureau, 2019)</p>
 <p>An additional data source used in this app is another source from the Center for Disease Control (CDC), specifically the National Center for Health Statistics. This source contains specifications on COVID-19 deaths broken down by state, age and gender. Age is separated into 10 groups, starting with a group of 18 – 29 and ending with a group of 85 and over. State is separated into the 50 states and includes the District of Columbia and Puerto Rico. Gender is split into two genders: male and female. This data set additional has total counts for the entire country. In terms of structure this data source has 20 rows for each state with separate rows by age group and by gender. The cleaned data set used in this app includes 4 columns for state, gender, age group and total deaths. For more information about this data source and the CDC data collection , please consult the following link <a href="https://data.cdc.gov/NCHS/Provisional-COVID-19-Death-Counts-by-Sex-Age-and-S/9bhg-hcku">here</a>. (Center for Disease Control, 2020)</p>
