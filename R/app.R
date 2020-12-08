@@ -1101,10 +1101,10 @@ print(aout2)
              y="Death toll",
              title="COVID-19 deaths, positive tests, and negative tests over time")}
     else  if(!!input$status == "COVID19"){
-      ctracking_dd %>% 
-        select(state,deathIncrease) %>% 
+      bplot %>% 
+        select(state,Number_of_Deaths) %>% 
         group_by(state) %>%
-        summarize(death = sum(deathIncrease, na.rm = T)) %>%
+        summarize(death = sum(Number_of_Deaths, na.rm = T)) %>%
         ungroup() %>%
         ggplot(aes(x=reorder(state, death),y=death))+
         geom_col()+
