@@ -21,7 +21,8 @@ age_gender%>%  ###removing variables update
   filter(`Age group` != c("24-34 years")) %>%
   filter(`Age group` != c("35-44 years")) %>%
   filter(`Age group` != c("45-54 years")) %>%
-  filter(`Age group` != c("55-64 years")) -> age_gender
+  filter(`Age group` != c("55-64 years"))%>%
+  filter (`State` != "United States")-> age_gender
 # proportions
 # tidy each table
 age <- read_rds("../data/age_gender.rds") 
@@ -71,7 +72,12 @@ death %>%
   rename(State = NAME)%>%
   rename(Deaths = "Number of COVID-19 Deaths")%>%
   mutate("Not Applicable" = " ")%>%
-  select(State, "Condition Group", "Condition", "Age Group", Deaths, "Not Applicable")-> COVID_Deaths
+  select(State, "Condition Group", "Condition", "Age Group", Deaths, "Not Applicable")%>%
+  filter(`Age Group` != "Not stated") %>%
+  filter(Condition != "COVID-19")%>%
+  filter(`Condition Group` != "Covid-19")%>%
+  filter(State != "UStotal") %>%
+  filter(`Age Group` != "All Ages") -> COVID_Deaths
 
 death11 <- read_rds("../data/COVID_Deaths.rds")
 ctracking11 <- read_rds("../data/ctracking.rds")
