@@ -13,9 +13,15 @@ library(tigris)
 death <- read_rds("../data/COVID_Deaths.rds")
 ctracking <- read_rds("../data/ctracking.rds")
 age_gender <- read_rds("../data/age_gender.rds")
+pop <- read_rds("../data/pop.rds")
 age_gender%>%
   mutate("Not Applicable" = " ") -> age_gender
-
+age_gender%>%  ###removing variables update
+  mutate("Not Applicable" = " ") %>%
+  filter(`Age group` != c("24-34 years")) %>%
+  filter(`Age group` != c("35-44 years")) %>%
+  filter(`Age group` != c("45-54 years")) %>%
+  filter(`Age group` != c("55-64 years")) -> age_gender
 # proportions
 # tidy each table
 age <- read_rds("../data/age_gender.rds") 
