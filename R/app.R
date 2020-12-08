@@ -232,7 +232,7 @@ mapping <- geo_join(states, ctracking2, "NAME", "NAME")
 # UI 
 ui <- fluidPage(
   theme = shinytheme("sandstone"),
-  titlePanel("Exploring Coronovirus Affects in the United States of America"),
+  titlePanel("Exploring Coronavirus Effects in the United States of America"),
   tabsetPanel(type = "tabs", 
               tabPanel("About",       
                        h2("ABOUT"),
